@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wildfire Tracker — Visual design language prototype</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+<link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+<style>
+/* ============================================================
+   PROTOTYPE — throwaway. Three visual directions for the rebuilt
+   wildfire tracker, switchable via ?variant=a|b|c.
+   Mock data shaped like NASA EONET v3 (see .scratch ticket 01).
+   ============================================================ */
+
+:root {
+  --prototype-bar: #11151b;
+  --prototype-bar-text: #eef1f5;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body { font-family: 'Public Sans', system-ui, sans-serif; overflow: hidden; }
+
+#map { position: fixed; inset: 0; }
+#ui { position: fixed; inset: 0; pointer-events: none; }
+#ui > * { pointer-events: auto; }
+
+/* ---------- attribution ---------- */
+.attr { position: absolute; font-size: 11px; line-height: 1; opacity: .8; z-index: 3; }
+
+/* ---------- shared: fire marker ---------- */
+.fire-marker { cursor: pointer; }
+.fire-marker .glyph { display: grid; place-items: center; }
+
+/* ============================================================
+   VARIANT A — MISSION CONTROL (dark cockpit)
+   Dials: VARIANCE 6 · MOTION 4 · DENSITY 7
+   Type: Archivo (display) + JetBrains Mono (data)
+   ============================================================ */
+body[data-variant="a"] {
+  --a-bg: #0a0c0f;
+  --a-panel: #11151b;
+  --a-elev: #171c23;
+  --a-border: rgba(255,255,255,.08);
+  --a-border-2: rgba(255,255,255,.14);
+  --a-text: #e7e9ee;
+  --a-muted: #8b93a1;
+  --a-faint: #5a6270;
+  --a-accent: #ff6a2b;
+  --a-accent-soft: rgba(255,106,43,.14);
+  --a-live: #ff4d2e;
+  background: var(--a-bg);
+  font-family: 'Public Sans', system-ui, sans-serif;
+}
+body[data-variant="a"] .maplibregl-canvas { filter: invert(1) hue-rotate(180deg) brightness(.92) contrast(.92); }
+body[data-variant="a"] .maplibregl-ctrl-attrib { background: rgba(10,12,15,.7); color: #8b93a1; }
+body[data-variant="a"] .maplibregl-ctrl-attrib a { color: #b6bcc7; }
+
+.vA-topbar {
+  position: absolute; top: 0; left: 0; right: 0; height: 52px; z-index: 5;
+  display: flex; align-items: center; gap: 20px;
+  padding: 0 16px;
+  background: rgba(17,21,27,.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--a-border);
+  color: var(--a-text);
+}
+.vA-brand { display: flex; align-items: center; gap: 10px; font-family: 'Archivo', sans-serif; font-weight: 700; letter-spacing: .01em; font-size: 15px; }
+.vA-brand .flame { color: var(--a-accent); display: grid; place-items: center; }
+.vA-brand small { display: block; font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--a-muted); margin-top: 2px; }
+.vA-spacer { flex: 1; }
+.vA-live { display: flex; align-items: center; gap: 7px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; color: var(--a-live); font-weight: 600; }
+.vA-live .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--a-live); box-shadow: 0 0 0 0 rgba(255,77,46,.6); animation: vA-pulse 2s infinite; }
+@keyframes vA-pulse { 70% { box-shadow: 0 0 0 6px rgba(255,77,46,0); } 100% { box-shadow: 0 0 0 0 rgba(255,77,46,0); } }
+.vA-updated { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--a-muted); }
+.vA-btn {
+  background: transparent; border: 1px solid var(--a-border-2); color: var(--a-text);
+  border-radius: 6px; padding: 6px 10px; font-size: 12px; cursor: pointer;
+  font-family: 'Public Sans', sans-serif; transition: background .15s, border-color .15s;
+}
+.vA-btn:hover { background: var(--a-elev); }
+
+.vA-sidebar {
+  position: absolute; top: 52px; left: 0; bottom: 0; width: 318px; z-index: 4;
+  background: var(--a-panel);
+  border-right: 1px solid var(--a-border);
+  display: flex; flex-direction: column;
+  color: var(--a-text);
+}
+.vA-filters { padding: 14px 16px; border-bottom: 1px solid var(--a-border); }
+.vA-filters .label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 10px; }
+.vA-seg { display: flex; gap: 2px; background: var(--a-bg); border: 1px solid var(--a-border); border-radius: 7px; padding: 2px; }
+.vA-seg button {
+  flex: 1; background: transparent; border: 0; color: var(--a-muted); font-size: 12px;
+  padding: 7px 0; border-radius: 5px; cursor: pointer; font-family: 'Public Sans', sans-serif;
+}
+.vA-seg button.active { background: var(--a-elev); color: var(--a-text); font-weight: 600; }
+.vA-list-head { display: flex; align-items: baseline; justify-content: space-between; padding: 12px 16px 8px; }
+.vA-list-head h2 { margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--a-muted); font-weight: 500; }
+.vA-list-head .count { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--a-accent); }
+.vA-list { flex: 1; overflow: auto; padding: 0 8px 16px; }
+.vA-row {
+  display: grid; grid-template-columns: 1fr auto; gap: 2px 12px;
+  padding: 11px 10px; border-radius: 7px; cursor: pointer;
+  border: 1px solid transparent;
+}
+.vA-row:hover { background: var(--a-elev); }
+.vA-row.selected { background: var(--a-accent-soft); border-color: rgba(255,106,43,.35); }
+.vA-row .name { font-size: 13px; font-weight: 600; line-height: 1.25; color: var(--a-text); }
+.vA-row .meta { grid-column: 1 / -1; display: flex; gap: 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--a-muted); margin-top: 3px; }
+.vA-row .acres { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--a-accent); font-weight: 600; }
+
+.vA-inspector {
+  position: absolute; top: 52px; right: 0; bottom: 0; width: 330px; z-index: 4;
+  background: var(--a-panel);
+  border-left: 1px solid var(--a-border);
+  display: none; flex-direction: column; color: var(--a-text);
+}
+.vA-inspector.open { display: flex; }
+.vA-inspector .grip { height: 4px; background: var(--a-accent); }
+.vA-inspector .body { padding: 20px; overflow: auto; }
+.vA-inspector .close { position: absolute; top: 12px; right: 12px; background: none; border: 0; color: var(--a-muted); font-size: 18px; cursor: pointer; }
+.vA-inspector .close:hover { color: var(--a-text); }
+.vA-inspector .kicker { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--a-muted); }
+.vA-inspector h1 { margin: 8px 0 0; font-family: 'Archivo', sans-serif; font-size: 22px; font-weight: 700; line-height: 1.15; letter-spacing: -.01em; }
+.vA-inspector .desc { color: var(--a-muted); font-size: 13px; line-height: 1.5; margin-top: 8px; }
+.vA-figures { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+.vA-figure { background: var(--a-bg); border: 1px solid var(--a-border); border-radius: 8px; padding: 12px; }
+.vA-figure .k { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--a-faint); }
+.vA-figure .v { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 600; color: var(--a-text); margin-top: 4px; }
+.vA-figure .v.accent { color: var(--a-accent); }
+.vA-src { margin-top: 18px; }
+.vA-src .k { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--a-faint); margin-bottom: 8px; }
+.vA-src a {
+  display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+  background: var(--a-bg); border: 1px solid var(--a-border-2); color: var(--a-text);
+  border-radius: 7px; padding: 8px 12px; font-size: 12px; margin-right: 8px;
+}
+.vA-src a:hover { border-color: var(--a-accent); color: var(--a-accent); }
+.vA-empty { padding: 24px 16px; color: var(--a-faint); font-size: 12px; text-align: center; }
+.vA-note { position: absolute; bottom: 0; left: 318px; z-index: 3; color: rgba(231,233,238,.45); font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 8px 12px; }
+
+/* markers A */
+body[data-variant="a"] .fire-marker .glyph { width: 26px; height: 26px; }
+body[data-variant="a"] .fire-marker .glyph svg { width: 22px; height: 22px; color: var(--a-accent); filter: drop-shadow(0 0 5px rgba(255,106,43,.7)); }
+body[data-variant="a"] .fire-marker.selected .glyph::after {
+  content: ''; position: absolute; inset: -6px; border-radius: 50%;
+  border: 2px solid var(--a-accent); animation: vA-pulse 1.4s infinite;
+}
+body[data-variant="a"] .fire-marker .tip {
+  position: absolute; top: -34px; left: 50%; transform: translateX(-50%);
+  background: var(--a-elev); border: 1px solid var(--a-border-2); color: var(--a-text);
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; white-space: nowrap;
+  padding: 4px 8px; border-radius: 5px; opacity: 0; transition: opacity .12s; pointer-events: none;
+}
+body[data-variant="a"] .fire-marker:hover .tip { opacity: 1; }
+
+/* ============================================================
+   VARIANT B — CIVIC LIGHT (clean light)
+   Dials: VARIANCE 4 · MOTION 3 · DENSITY 3
+   Type: Public Sans (UI) + JetBrains Mono (data)
+   ============================================================ */
+body[data-variant="b"] {
+  --b-surface: #ffffff;
+  --b-bg: #f4f6f8;
+  --b-ink: #17202a;
+  --b-muted: #5c6a79;
+  --b-faint: #93a0ae;
+  --b-border: #e4e9ee;
+  --b-accent: #d0453c;
+  --b-accent-soft: #fdf1f0;
+  --b-shadow: 0 12px 32px rgba(23,32,42,.12);
+  background: var(--b-bg);
+}
+body[data-variant="b"] .maplibregl-ctrl-attrib { background: rgba(255,255,255,.8); color: #5c6a79; }
+
+.vB-brand {
+  position: absolute; top: 16px; left: 16px; z-index: 5;
+  background: var(--b-surface); border: 1px solid var(--b-border); border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(23,32,42,.08);
+  padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+  color: var(--b-ink);
+}
+.vB-brand .flame { color: var(--b-accent); display: grid; place-items: center; }
+.vB-brand .word { font-family: 'Public Sans', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: -.01em; }
+.vB-brand .word small { display: block; font-weight: 500; font-size: 11px; color: var(--b-muted); margin-top: 1px; }
+
+.vB-status {
+  position: absolute; top: 16px; right: 16px; z-index: 5;
+  display: flex; align-items: center; gap: 14px;
+  background: var(--b-surface); border: 1px solid var(--b-border); border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(23,32,42,.08);
+  padding: 12px 16px; color: var(--b-ink);
+}
+.vB-status .live { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; }
+.vB-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--b-accent); }
+.vB-status .updated { font-size: 12px; color: var(--b-muted); }
+.vB-status button {
+  background: var(--b-ink); color: #fff; border: 0; border-radius: 9px;
+  padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.vB-status button:hover { background: #2c3542; }
+
+.vB-filters {
+  position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 5;
+  display: flex; align-items: center; gap: 6px;
+  background: var(--b-surface); border: 1px solid var(--b-border); border-radius: 999px;
+  box-shadow: var(--b-shadow); padding: 6px;
+}
+.vB-filters .pill {
+  border: 0; background: transparent; color: var(--b-muted); font-size: 13px; font-weight: 600;
+  padding: 9px 16px; border-radius: 999px; cursor: pointer; font-family: inherit;
+}
+.vB-filters .pill.active { background: var(--b-accent-soft); color: var(--b-accent); }
+.vB-filters .sep { width: 1px; height: 20px; background: var(--b-border); }
+.vB-filters .count { font-size: 12px; color: var(--b-muted); padding: 0 8px; font-family: 'JetBrains Mono', monospace; }
+
+.vB-panel {
+  position: absolute; top: 84px; right: 16px; bottom: 70px; width: 300px; z-index: 4;
+  background: var(--b-surface); border: 1px solid var(--b-border); border-radius: 18px;
+  box-shadow: var(--b-shadow);
+  display: flex; flex-direction: column; overflow: hidden; color: var(--b-ink);
+}
+.vB-panel.hidden { display: none; }
+.vB-panel-head { padding: 16px 18px 12px; display: flex; align-items: baseline; justify-content: space-between; }
+.vB-panel-head h3 { margin: 0; font-size: 15px; font-weight: 700; }
+.vB-panel-head .count { font-size: 12px; color: var(--b-muted); font-family: 'JetBrains Mono', monospace; }
+.vB-list { flex: 1; overflow: auto; padding: 0 10px 12px; }
+.vB-row { display: flex; align-items: center; gap: 12px; padding: 11px 10px; border-radius: 12px; cursor: pointer; }
+.vB-row:hover { background: var(--b-bg); }
+.vB-row.selected { background: var(--b-accent-soft); }
+.vB-row .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--b-accent); flex: none; }
+.vB-row .txt { flex: 1; min-width: 0; }
+.vB-row .name { font-size: 13px; font-weight: 600; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vB-row .meta { font-size: 11px; color: var(--b-muted); margin-top: 2px; }
+.vB-row .acres { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--b-accent); font-weight: 600; }
+
+.vB-sheet {
+  position: absolute; right: 16px; top: 84px; width: 340px; z-index: 6;
+  background: var(--b-surface); border: 1px solid var(--b-border); border-radius: 18px;
+  box-shadow: var(--b-shadow); color: var(--b-ink);
+  display: none;
+}
+.vB-sheet.open { display: block; }
+.vB-sheet .accent-bar { height: 5px; background: var(--b-accent); border-radius: 18px 18px 0 0; }
+.vB-sheet .body { padding: 18px; position: relative; }
+.vB-sheet .close { position: absolute; top: 12px; right: 14px; background: var(--b-bg); border: 0; color: var(--b-muted); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; }
+.vB-sheet h1 { margin: 2px 0 4px; font-size: 19px; font-weight: 700; line-height: 1.25; letter-spacing: -.01em; padding-right: 30px; }
+.vB-sheet .desc { color: var(--b-muted); font-size: 13px; line-height: 1.5; margin: 6px 0 0; }
+.vB-sheet .status-line { display: flex; gap: 16px; margin-top: 16px; padding: 12px 14px; background: var(--b-bg); border-radius: 12px; }
+.vB-sheet .status-line .it .k { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--b-faint); font-weight: 600; }
+.vB-sheet .status-line .it .v { font-size: 15px; font-weight: 700; margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+.vB-sheet .status-line .it .v.accent { color: var(--b-accent); }
+.vB-sheet .src { display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; text-decoration: none; background: var(--b-ink); color: #fff; border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 600; }
+.vB-sheet .src:hover { background: #2c3542; }
+.vB-note { position: absolute; bottom: 62px; right: 16px; z-index: 3; color: #5c6a79; font-size: 11px; background: rgba(255,255,255,.7); border-radius: 8px; padding: 4px 8px; }
+
+/* markers B */
+body[data-variant="b"] .fire-marker .glyph { width: 30px; height: 30px; background: var(--b-accent); border: 3px solid #fff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 3px 8px rgba(23,32,42,.28); }
+body[data-variant="b"] .fire-marker .glyph svg { width: 15px; height: 15px; transform: rotate(45deg); color: #fff; }
+body[data-variant="b"] .fire-marker.selected .glyph { box-shadow: 0 0 0 5px var(--b-accent-soft), 0 3px 8px rgba(23,32,42,.28); }
+body[data-variant="b"] .fire-marker .tip {
+  position: absolute; top: -32px; left: 50%; transform: translateX(-50%);
+  background: var(--b-ink); color: #fff; font-size: 11px; white-space: nowrap;
+  padding: 5px 9px; border-radius: 8px; opacity: 0; transition: opacity .12s; pointer-events: none;
+}
+body[data-variant="b"] .fire-marker:hover .tip { opacity: 1; }
+
+/* ============================================================
+   VARIANT C — WILDLAND LEDGER (editorial dashboard)
+   Dials: VARIANCE 8 · MOTION 4 · DENSITY 4
+   Type: Space Grotesk (display) + JetBrains Mono (data)
+   ============================================================ */
+body[data-variant="c"] {
+  --c-bg: #11160f;
+  --c-panel: #1a2118;
+  --c-border: rgba(242,236,226,.12);
+  --c-border-2: rgba(242,236,226,.22);
+  --c-bone: #f1ece2;
+  --c-muted: #a7b09d;
+  --c-faint: #70795f;
+  --c-accent: #f2672b;
+  background: var(--c-bg);
+  font-family: 'Space Grotesk', sans-serif;
+}
+body[data-variant="c"] .maplibregl-canvas { filter: invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.7); }
+body[data-variant="c"] .maplibregl-ctrl-attrib { background: rgba(17,22,15,.75); color: #a7b09d; }
+body[data-variant="c"] .maplibregl-ctrl-attrib a { color: #d5dacb; }
+
+.vC-ledger {
+  position: absolute; top: 0; left: 0; bottom: 0; width: 372px; z-index: 4;
+  background: var(--c-panel); border-right: 1px solid var(--c-border);
+  color: var(--c-bone);
+  display: flex; flex-direction: column;
+}
+.vC-ledger-head { padding: 26px 24px 18px; border-bottom: 1px solid var(--c-border); }
+.vC-masthead { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 30px; letter-spacing: -.02em; line-height: 1; }
+.vC-masthead .flame { color: var(--c-accent); display: inline-block; margin-right: 2px; }
+.vC-ledger-head .sub { display: flex; align-items: center; gap: 10px; margin-top: 12px; color: var(--c-muted); font-size: 12px; }
+.vC-ledger-head .sub .live { color: var(--c-accent); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+.vC-ledger-head .sub .live .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--c-accent); animation: vC-blink 1.6s infinite; }
+@keyframes vC-blink { 50% { opacity: .3; } }
+.vC-toggle { display: flex; gap: 2px; margin-top: 16px; background: var(--c-bg); border: 1px solid var(--c-border); border-radius: 8px; padding: 3px; }
+.vC-toggle button { flex: 1; background: transparent; border: 0; color: var(--c-muted); font-size: 12px; padding: 8px 0; border-radius: 6px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-weight: 500; }
+.vC-toggle button.active { background: var(--c-accent); color: #13160f; font-weight: 700; }
+.vC-entries { flex: 1; overflow: auto; padding: 8px 0 12px; counter-reset: ledger; }
+.vC-entry {
+  display: grid; grid-template-columns: 34px 1fr auto; gap: 2px 14px; align-items: start;
+  padding: 16px 24px 16px 22px; cursor: pointer; border-left: 2px solid transparent;
+  position: relative;
+}
+.vC-entry:hover { background: rgba(242,236,226,.04); }
+.vC-entry.selected { border-left-color: var(--c-accent); background: rgba(242,103,43,.08); }
+.vC-entry .num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--c-faint); padding-top: 3px; counter-increment: ledger; }
+.vC-entry .num::before { content: counter(ledger, decimal-leading-zero); }
+.vC-entry .name { font-size: 14px; font-weight: 600; line-height: 1.25; color: var(--c-bone); }
+.vC-entry .meta { grid-column: 2 / -1; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--c-faint); margin-top: 3px; }
+.vC-entry .acres { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--c-accent); font-weight: 600; grid-row: 1; }
+
+.vC-ticker {
+  position: absolute; left: 372px; right: 0; bottom: 0; z-index: 4;
+  background: rgba(26,33,24,.92); backdrop-filter: blur(10px);
+  border-top: 1px solid var(--c-border);
+  display: flex; align-items: stretch;
+  color: var(--c-bone);
+}
+.vC-stat { flex: 1; padding: 14px 18px; border-right: 1px solid var(--c-border); min-width: 0; }
+.vC-stat:last-child { border-right: 0; }
+.vC-stat .k { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--c-faint); }
+.vC-stat .v { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: -.02em; margin-top: 3px; line-height: 1; }
+.vC-stat .v.accent { color: var(--c-accent); }
+.vC-stat .s { font-size: 11px; color: var(--c-muted); margin-top: 4px; }
+
+.vC-card {
+  position: absolute; right: 18px; top: 18px; width: 320px; z-index: 6;
+  background: var(--c-panel); border: 1px solid var(--c-border-2); border-radius: 14px;
+  color: var(--c-bone); display: none; overflow: hidden;
+}
+.vC-card.open { display: block; }
+.vC-card .body { padding: 20px; }
+.vC-card .close { position: absolute; top: 12px; right: 14px; background: none; border: 0; color: var(--c-muted); font-size: 16px; cursor: pointer; }
+.vC-card .kicker { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--c-accent); }
+.vC-card h2 { margin: 8px 0 0; font-size: 20px; font-weight: 700; line-height: 1.2; letter-spacing: -.01em; padding-right: 24px; }
+.vC-card .desc { color: var(--c-muted); font-size: 13px; line-height: 1.5; margin-top: 8px; }
+.vC-card .fig { display: flex; align-items: baseline; gap: 10px; margin-top: 16px; }
+.vC-card .fig .big { font-family: 'JetBrains Mono', monospace; font-size: 34px; font-weight: 600; color: var(--c-accent); line-height: 1; }
+.vC-card .fig .unit { color: var(--c-muted); font-size: 12px; }
+.vC-card .rows { margin-top: 16px; border-top: 1px solid var(--c-border); padding-top: 12px; display: grid; gap: 8px; }
+.vC-card .rows .r { display: flex; justify-content: space-between; font-size: 12px; }
+.vC-card .rows .r .k { color: var(--c-faint); font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; }
+.vC-card .rows .r .v { color: var(--c-bone); font-family: 'JetBrains Mono', monospace; }
+.vC-card .src { display: inline-flex; gap: 6px; align-items: center; margin-top: 16px; background: var(--c-accent); color: #13160f; text-decoration: none; font-weight: 700; font-size: 13px; padding: 10px 16px; border-radius: 8px; }
+.vC-card .src:hover { filter: brightness(1.08); }
+.vC-note { position: absolute; left: 372px; top: 0; z-index: 3; color: var(--c-faint); font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 8px 12px; }
+
+/* markers C */
+body[data-variant="c"] .fire-marker .glyph { width: 26px; height: 26px; }
+body[data-variant="c"] .fire-marker .glyph svg { width: 20px; height: 20px; color: var(--c-accent); filter: drop-shadow(0 0 6px rgba(242,103,43,.85)); }
+body[data-variant="c"] .fire-marker.selected .glyph { color: var(--c-accent); }
+body[data-variant="c"] .fire-marker.selected .glyph::after { content: ''; position: absolute; inset: -5px; border: 1px solid var(--c-accent); border-radius: 50%; }
+body[data-variant="c"] .fire-marker .tip {
+  position: absolute; top: -32px; left: 50%; transform: translateX(-50%);
+  background: var(--c-panel); border: 1px solid var(--c-border-2); color: var(--c-bone);
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; white-space: nowrap;
+  padding: 5px 9px; border-radius: 6px; opacity: 0; transition: opacity .12s; pointer-events: none;
+}
+body[data-variant="c"] .fire-marker:hover .tip { opacity: 1; }
+
+/* ============================================================
+   FLOATING SWITCHER (prototype tooling, not part of any design)
+   ============================================================ */
+#switcher {
+  position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 50;
+  display: flex; align-items: center; gap: 4px;
+  background: var(--prototype-bar); color: var(--prototype-bar-text);
+  border-radius: 999px; padding: 5px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.4);
+  font-family: 'JetBrains Mono', monospace;
+}
+#switcher .name { padding: 0 10px; font-size: 11px; letter-spacing: .05em; white-space: nowrap; }
+#switcher .name b { color: var(--prototype-bar-text); }
+#switcher button {
+  background: transparent; border: 0; color: var(--prototype-bar-text); font-size: 15px;
+  width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-family: inherit;
+}
+#switcher button:hover { background: rgba(255,255,255,.14); }
+</style>
+</head>
+<body data-variant="a">
+
+<div id="map"></div>
+<div id="ui"></div>
+<div id="switcher"></div>
+
+<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<script>
+/* ============================================================
+   MOCK DATA — shaped exactly like NASA EONET v3 (see ticket 01).
+   Field set verified live: id, title, description (nullable),
+   closed, sources[], geometry[] { magnitudeValue/Unit (acres),
+   date, type Point, coordinates [lng, lat] }.
+   ============================================================ */
+const EVENTS = [
+  { id:'EONET_22430', title:'Wildfire Harris, Rosebud, Montana', description:'30 Miles SW from Ashland, MT', closed:null,
+    sources:[{ id:'IRWIN', url:'https://irwin.doi.gov/observer/incidents/2026-MTMCD-000676' }],
+    geometry:[{ magnitudeValue:924.3, magnitudeUnit:'acres', date:'2026-08-09T16:55:00Z', type:'Point', coordinates:[-106.634317,45.195183] }] },
+  { id:'EONET_22424', title:'Wildfire WEISER KNOLL, Fremont, Wyoming', description:'13 Miles SE from Lander, WY', closed:null,
+    sources:[{ id:'IRWIN', url:'https://irwin.doi.gov/observer/incidents/2026-WYWBD-000294' }],
+    geometry:[{ magnitudeValue:8500, magnitudeUnit:'acres', date:'2026-08-09T16:32:00Z', type:'Point', coordinates:[-108.607547,42.636437] }] },
+  { id:'EONET_22445', title:'Wildfire Cougar Creek, Wallowa, Oregon', description:null, closed:null,
+    sources:[{ id:'IRWIN', url:'https://irwin.doi.gov/observer/incidents/2026-ORWF-000441' }],
+    geometry:[{ magnitudeValue:3120, magnitudeUnit:'acres', date:'2026-08-09T14:20:00Z', type:'Point', coordinates:[-117.2391,45.2345] }] },
+  { id:'EONET_22452', title:'Wildfire Lost Lake, Chelan, Washington', description:'20 Miles W of Lake Chelan', closed:null,
+    sources:[{ id:'IRWIN', url:'https://irwin.doi.gov/observer/incidents/2026-WACR-000908' }],
+    geometry:[{ magnitudeValue:22450, magnitudeUnit:'acres', date:'2026-08-09T15:44:00Z', type:'Point', coordinates:[-120.9011,48.0521] }] },
+  { id:'EONET_22440', title:'Wildfire Ponderosa, Plumas, California', description:'8 Miles NE of Quincy', closed:null,
+    sources:[{ id:'IRWIN', url:'https://irwin.doi.gov/observer/incidents/2026-CAPLF-006511' }],
+    geometry:[{ magnitudeValue:4890, magnitudeUnit:'acres', date:'2026-08-09T13:02:00Z', type:'Point', coordinates:[-120.8611,39.9884] }] },
+  { id:'EONET_22461', title:'Wildfire Skull Ridge, Cibola, New Mexico', description:null, closed:null,
+    sources:[{ id:'IRWIN', url:'https://irwin.doi.gov/observer/incidents/2026-NMNOF-001822' }],
+    geometry:[{ magnitudeValue:1340, magnitudeUnit:'acres', date:'2026-08-09T12:10:00Z', type:'Point', coordinates:[-107.3542,35.0111] }] },
+  { id:'EONET_22469', title:'Wildfire Beaver Pond, Lincoln, Montana', description:'12 Miles W of Eureka', closed:null,
+    sources:[{ id:'IRWIN', url:'https://irwin.doi.gov/observer/incidents/2026-MTKWF-002204' }],
+    geometry:[{ magnitudeValue:760, magnitudeUnit:'acres', date:'2026-08-09T10:48:00Z', type:'Point', coordinates:[-115.1641,48.9124] }] },
+  { id:'EONET_22476', title:'Wildfire June South, Juneau, Alaska', description:null, closed:null,
+    sources:[{ id:'GDACS', url:'https://www.gdacs.org/' }],
+    geometry:[{ magnitudeValue:15700, magnitudeUnit:'acres', date:'2026-08-08T20:15:00Z', type:'Point', coordinates:[-134.4211,58.3534] }] },
+  { id:'EONET_22387', title:'Wildfire in Australia 1030307', description:null, closed:'2026-08-09T00:00:00Z',
+    sources:[{ id:'GDACS', url:'https://www.gdacs.org/' }],
+    geometry:[{ magnitudeValue:29000, magnitudeUnit:'acres', date:'2026-08-08T22:00:00Z', type:'Point', coordinates:[146.7311,-37.6632] }] },
+  { id:'EONET_22458', title:'Wildfire in Brazil 1030351', description:null, closed:'2026-08-10T00:00:00Z',
+    sources:[{ id:'GDACS', url:'https://www.gdacs.org/' }],
+    geometry:[{ magnitudeValue:41200, magnitudeUnit:'acres', date:'2026-08-09T18:30:00Z', type:'Point', coordinates:[-51.3211,-12.8543] }] },
+  { id:'EONET_22488', title:'Wildfire Caribou North, Cariboo, BC', description:null, closed:null,
+    sources:[{ id:'GDACS', url:'https://www.gdacs.org/' }],
+    geometry:[{ magnitudeValue:68400, magnitudeUnit:'acres', date:'2026-08-09T17:05:00Z', type:'Point', coordinates:[-122.5511,52.3341] }] },
+  { id:'EONET_22492', title:'Wildfire Escalante, Garfield, Utah', description:'15 Miles S of Escalante', closed:null,
+    sources:[{ id:'IRWIN', url:'https://irwin.doi.gov/observer/incidents/2026-UTGLF-000177' }],
+    geometry:[{ magnitudeValue:2210, magnitudeUnit:'acres', date:'2026-08-09T11:12:00Z', type:'Point', coordinates:[-111.4822,37.6931] }] },
+];
+
+const VARIANTS = {
+  a: { name:'Mission Control', desc:'dark · dense · cockpit' },
+  b: { name:'Civic Light', desc:'light · clean · public service' },
+  c: { name:'Wildland Ledger', desc:'bold · editorial · situation room' },
+};
+
+let map;
+let state = { variant: 'a', filter: 'open', selected: null };
+const FLAME_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.5 3-1.5 4.5-2.8 6.4C8 10.2 7.2 11.7 7.2 13.5a4.8 4.8 0 0 0 9.6 0c0-1.3-.4-2.4-1-3.5-.4.7-.9 1.1-1.5 1.3.3-2.6-.4-6-2.3-9.3z"/><path d="M12 22a6.5 6.5 0 0 1-3.9-11.6c.5 1.8 1.6 2.8 2.9 3.5-.2-1.9.3-3.6 1.5-5.1 2.6 2.2 4 5.2 4 8.2a6.5 6.5 0 0 1-4.5 5z"/></svg>';
+const ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg>';
+
+function geo(e){ return e.geometry[0]; }
+function acres(e){ const g = geo(e); return g && g.magnitudeValue ? g.magnitudeValue : null; }
+function timeAgo(iso){
+  const s = (Date.now() - new Date(iso).getTime())/1000;
+  if (s < 60) return 'just now';
+  if (s < 3600) return Math.floor(s/60)+'m ago';
+  return Math.floor(s/3600)+'h ago';
+}
+function fmtAcres(n){
+  if (n == null) return '—';
+  return n >= 1000 ? (Math.round(n/100)/10).toFixed(1)+'k' : Math.round(n).toString();
+}
+function fmtAcresFull(n){ return n == null ? 'Unknown' : Math.round(n).toLocaleString()+' acres'; }
+function visibleEvents(){ return EVENTS.filter(e => state.filter === 'all' || !e.closed); }
+function sourceName(e){ return e.sources && e.sources[0] ? e.sources[0].id : '—'; }
+function sourceUrl(e){ return e.sources && e.sources[0] ? e.sources[0].url : '#'; }
+function humanDate(iso){ return new Date(iso).toUTCString().replace(' GMT',' UTC'); }
+
+/* ---------- markers ---------- */
+let markers = [];
+function renderMarkers(){
+  markers.forEach(m => m.remove());
+  markers = [];
+  visibleEvents().forEach(e => {
+    const g = geo(e);
+    if (!g || !g.coordinates) return;
+    const el = document.createElement('div');
+    el.className = 'fire-marker' + (state.selected === e.id ? ' selected' : '');
+    el.innerHTML = '<div class="glyph">'+FLAME_SVG+'</div><div class="tip">'+e.title+' · '+fmtAcres(acres(e))+' ac</div>';
+    el.addEventListener('click', () => select(e.id));
+    const m = new maplibregl.Marker({ element: el })
+      .setLngLat([g.coordinates[0], g.coordinates[1]])
+      .addTo(map);
+    markers.push(m);
+  });
+}
+
+function select(id){
+  state.selected = (state.selected === id) ? null : id;
+  renderUI();
+  renderMarkers();
+}
+
+function setFilter(f){
+  state.filter = f;
+  state.selected = null;
+  renderUI();
+  renderMarkers();
+}
+
+/* ---------- variant A ---------- */
+function renderA(){
+  const ev = visibleEvents();
+  const sel = ev.find(e => e.id === state.selected);
+  const rows = ev.map(e => {
+    const g = geo(e);
+    return `
+      <div class="vA-row ${state.selected === e.id ? 'selected' : ''}" data-id="${e.id}">
+        <div class="name">${e.title}</div>
+        <div class="acres">${fmtAcres(acres(e))}<span style="color:var(--a-faint)">ac</span></div>
+        <div class="meta">
+          <span>${timeAgo(g.date)}</span>
+          <span>${g.coordinates[1].toFixed(2)}°, ${g.coordinates[0].toFixed(2)}°</span>
+          <span>${sourceName(e)}</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  let inspector = '';
+  if (sel){
+    const g = geo(sel);
+    inspector = `
+      <div class="vA-inspector open">
+        <div class="grip"></div>
+        <button class="close" data-close>✕</button>
+        <div class="body">
+          <div class="kicker">${sel.closed ? 'CLOSED EVENT' : 'ACTIVE INCIDENT'}</div>
+          <h1>${sel.title}</h1>
+          <p class="desc">${sel.description || 'No description provided by source.'}</p>
+          <div class="vA-figures">
+            <div class="vA-figure"><div class="k">Size</div><div class="v accent">${fmtAcresFull(acres(sel))}</div></div>
+            <div class="vA-figure"><div class="k">Updated</div><div class="v" style="font-size:13px;line-height:1.3">${timeAgo(g.date)}<br><span style="font-size:10px;color:var(--a-faint)">${humanDate(g.date)}</span></div></div>
+            <div class="vA-figure"><div class="k">Status</div><div class="v" style="font-size:13px">${sel.closed ? 'Closed' : 'Open'}</div></div>
+            <div class="vA-figure"><div class="k">Location</div><div class="v" style="font-size:13px;line-height:1.3">${g.coordinates[1].toFixed(3)}°, ${g.coordinates[0].toFixed(3)}°</div></div>
+          </div>
+          <div class="vA-src">
+            <div class="k">Source</div>
+            ${sel.sources.map(s => `<a href="${s.url}" target="_blank" rel="noopener">${ARROW.replace('stroke-width="2.4"','stroke-width="2"')} ${s.id}</a>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  } else {
+    inspector = `<div class="vA-inspector"><div class="vA-empty">Select a fire from the list or map to inspect it.</div></div>`;
+  }
+
+  return `
+    <div class="vA-topbar">
+      <div class="vA-brand">
+        <span class="flame">${FLAME_SVG.replace('width="24" height="24"','width="20" height="20"').replace('M12 22','M12 20')}</span>
+        <span>WILDFIRE TRACKER<small>NASA EONET · v3</small></span>
+      </div>
+      <div class="vA-spacer"></div>
+      <div class="vA-updated">Updated 5m ago</div>
+      <button class="vA-btn">⟳ Refresh</button>
+      <div class="vA-live"><span class="dot"></span>LIVE</div>
+    </div>
+    <aside class="vA-sidebar">
+      <div class="vA-filters">
+        <div class="label">Status</div>
+        <div class="vA-seg">
+          <button class="${state.filter === 'open' ? 'active' : ''}" data-f="open">Open</button>
+          <button class="${state.filter === 'all' ? 'active' : ''}" data-f="all">All</button>
+        </div>
+      </div>
+      <div class="vA-list-head"><h2>Incidents</h2><span class="count">${ev.length}</span></div>
+      <div class="vA-list">${rows || '<div class="vA-empty">No incidents match.</div>'}</div>
+    </aside>
+    ${inspector}
+    <div class="vA-note">Map · NASA EONET v3 (mock)</div>`;
+}
+
+/* ---------- variant B ---------- */
+function renderB(){
+  const ev = visibleEvents();
+  const sel = ev.find(e => e.id === state.selected);
+  const rows = ev.map(e => {
+    const g = geo(e);
+    return `
+      <div class="vB-row ${state.selected === e.id ? 'selected' : ''}" data-id="${e.id}">
+        <span class="dot"></span>
+        <div class="txt">
+          <div class="name">${e.title}</div>
+          <div class="meta">${timeAgo(g.date)} · ${sourceName(e)}</div>
+        </div>
+        <span class="acres">${fmtAcres(acres(e))} ac</span>
+      </div>`;
+  }).join('');
+
+  let sheet = '';
+  if (sel){
+    const g = geo(sel);
+    sheet = `
+      <div class="vB-sheet open">
+        <div class="accent-bar"></div>
+        <div class="body">
+          <button class="close" data-close>✕</button>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--b-accent)">${sel.closed ? 'Closed event' : 'Active wildfire'}</div>
+          <h1>${sel.title}</h1>
+          <p class="desc">${sel.description || 'No description provided by source.'}</p>
+          <div class="status-line">
+            <div class="it"><div class="k">Size</div><div class="v accent">${fmtAcresFull(acres(sel))}</div></div>
+            <div class="it"><div class="k">Updated</div><div class="v">${timeAgo(g.date)}</div></div>
+          </div>
+          <a class="src" href="${sourceUrl(sel)}" target="_blank" rel="noopener">Open ${sourceName(sel)} source</a>
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="vB-brand">
+      <span class="flame">${FLAME_SVG.replace('width="24" height="24"','width="22" height="22"')}</span>
+      <span class="word">Wildfire Tracker<small>Powered by NASA EONET</small></span>
+    </div>
+    <div class="vB-status">
+      <span class="live"><span class="dot"></span>Live</span>
+      <span class="updated">Updated 5m ago</span>
+      <button>Refresh</button>
+    </div>
+    <div class="vB-filters">
+      <button class="pill ${state.filter === 'open' ? 'active' : ''}" data-f="open">Open fires</button>
+      <button class="pill ${state.filter === 'all' ? 'active' : ''}" data-f="all">All</button>
+      <span class="sep"></span>
+      <span class="count">${ev.length} shown</span>
+    </div>
+    <div class="vB-panel ${state.selected ? 'hidden' : ''}">
+      <div class="vB-panel-head"><h3>Active fires</h3><span class="count">${ev.length}</span></div>
+      <div class="vB-list">${rows || '<div style="padding:20px;color:var(--b-muted);font-size:13px">No fires match.</div>'}</div>
+    </div>
+    ${sheet}
+    <div class="vB-note">Map data · NASA EONET v3 (mock)</div>`;
+}
+
+/* ---------- variant C ---------- */
+function renderC(){
+  const ev = visibleEvents();
+  const sel = ev.find(e => e.id === state.selected);
+  const totalAcres = ev.reduce((s,e) => s + (acres(e) || 0), 0);
+  const largest = ev.reduce((m,e) => Math.max(m, acres(e) || 0), 0);
+
+  const entries = ev.map(e => {
+    const g = geo(e);
+    return `
+      <div class="vC-entry ${state.selected === e.id ? 'selected' : ''}" data-id="${e.id}">
+        <span class="num"></span>
+        <div class="name">${e.title}</div>
+        <div class="acres">${fmtAcres(acres(e))}ac</div>
+        <div class="meta">${timeAgo(g.date)} · ${g.coordinates[1].toFixed(2)}°, ${g.coordinates[0].toFixed(2)}° · ${sourceName(e)}</div>
+      </div>`;
+  }).join('');
+
+  let card = '';
+  if (sel){
+    const g = geo(sel);
+    card = `
+      <div class="vC-card open">
+        <div class="body">
+          <button class="close" data-close>✕</button>
+          <div class="kicker">${sel.closed ? 'Closed event' : 'Active wildfire'}</div>
+          <h2>${sel.title}</h2>
+          <p class="desc">${sel.description || 'No description provided by source.'}</p>
+          <div class="fig"><span class="big">${fmtAcres(acres(sel))}</span><span class="unit">acres · ${fmtAcresFull(acres(sel))}</span></div>
+          <div class="rows">
+            <div class="r"><span class="k">Last updated</span><span class="v">${timeAgo(g.date)} · ${humanDate(g.date)}</span></div>
+            <div class="r"><span class="k">Status</span><span class="v">${sel.closed ? 'Closed' : 'Open'}</span></div>
+            <div class="r"><span class="k">Coordinates</span><span class="v">${g.coordinates[1].toFixed(3)}, ${g.coordinates[0].toFixed(3)}</span></div>
+          </div>
+          <a class="src" href="${sourceUrl(sel)}" target="_blank" rel="noopener">View ${sourceName(sel)} incident</a>
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="vC-ledger">
+      <div class="vC-ledger-head">
+        <div class="vC-masthead"><span class="flame">${FLAME_SVG.replace('width="24" height="24"','width="26" height="26"')}</span>WILDFIRE</div>
+        <div class="sub">
+          <span class="live"><span class="dot"></span>LIVE FEED</span>
+          <span>· NASA EONET v3</span>
+          <span>· 5m</span>
+        </div>
+        <div class="vC-toggle">
+          <button class="${state.filter === 'open' ? 'active' : ''}" data-f="open">Open</button>
+          <button class="${state.filter === 'all' ? 'active' : ''}" data-f="all">All</button>
+        </div>
+      </div>
+      <div class="vC-entries">${entries || '<div style="padding:20px;color:var(--c-faint);font-size:13px">No entries.</div>'}</div>
+    </div>
+    <div class="vC-ticker">
+      <div class="vC-stat"><div class="k">Active fires</div><div class="v">${ev.filter(e=>!e.closed).length}</div></div>
+      <div class="vC-stat"><div class="k">Total burning</div><div class="v accent">${fmtAcres(totalAcres)}</div><div class="s">acres across ${ev.length} tracked</div></div>
+      <div class="vC-stat"><div class="k">Largest</div><div class="v">${fmtAcres(largest)}</div><div class="s">acres</div></div>
+      <div class="vC-stat"><div class="k">Updated</div><div class="v">5m</div><div class="s">ago</div></div>
+    </div>
+    ${card}
+    <div class="vC-note">Map · NASA EONET v3 (mock)</div>`;
+}
+
+/* ---------- switcher + wiring ---------- */
+function renderUI(){
+  const ui = document.getElementById('ui');
+  document.body.dataset.variant = state.variant;
+  ui.innerHTML = state.variant === 'a' ? renderA() : state.variant === 'b' ? renderB() : renderC();
+  ui.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => setFilter(b.dataset.f)));
+  ui.querySelectorAll('[data-id]').forEach(el => el.addEventListener('click', () => select(el.dataset.id)));
+  ui.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', () => select(null)));
+
+  const sw = document.getElementById('switcher');
+  sw.innerHTML = `
+    <button id="sw-prev" aria-label="Previous variant">‹</button>
+    <span class="name"><b>${state.variant.toUpperCase()}</b> · ${VARIANTS[state.variant].name} <span style="opacity:.6">— ${VARIANTS[state.variant].desc}</span></span>
+    <button id="sw-next" aria-label="Next variant">›</button>`;
+  document.getElementById('sw-prev').addEventListener('click', () => cycle(-1));
+  document.getElementById('sw-next').addEventListener('click', () => cycle(1));
+  renderMarkers();
+}
+
+function setVariant(v, push){
+  state.variant = v;
+  state.selected = null;
+  const url = new URL(location.href);
+  url.searchParams.set('variant', v);
+  if (push) history.replaceState(null, '', url);
+  renderUI();
+}
+function cycle(dir){
+  const keys = Object.keys(VARIANTS);
+  const i = keys.indexOf(state.variant);
+  setVariant(keys[(i + dir + keys.length) % keys.length], true);
+}
+
+function initMap(){
+  map = new maplibregl.Map({
+    container: 'map',
+    style: 'https://tiles.openfreemap.org/styles/liberty',
+    center: [-112, 43],
+    zoom: 3.4,
+    attributionControl: { compact: true },
+  });
+  map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
+  map.on('load', renderUI);
+}
+
+/* URL + keyboard */
+const urlVariant = new URL(location.href).searchParams.get('variant');
+state.variant = VARIANTS[urlVariant] ? urlVariant : 'a';
+document.addEventListener('keydown', (e) => {
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+  if (e.key === 'ArrowLeft') { cycle(-1); e.preventDefault(); }
+  if (e.key === 'ArrowRight') { cycle(1); e.preventDefault(); }
+});
+
+initMap();
+</script>
+</body>
+</html>
