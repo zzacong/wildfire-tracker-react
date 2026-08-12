@@ -13,3 +13,4 @@
 - [ ] Markers are `tabindex="0"` buttons with `aria-label="<name>, <size> acres"`, Enter/Space selects, `aria-pressed` reflects selection; basemap canvas `aria-hidden`.
 - [ ] On-map key text: "orange flame = active wildfire; size and status in the ledger/ticker".
 - [ ] One shared selection state (selected fire id) introduced; selecting a marker highlights it with the accent ring + glow.
+- [ ] Passes the quality gate: `oxlint --deny-warnings` and `oxfmt --check` clean on this slice's changes.

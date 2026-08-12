@@ -13,3 +13,4 @@
 - [ ] Dismiss via Escape / ✕ / shade click; the map never scrolls while the panel is open.
 - [ ] Below 820px: bottom sheet (full-width, rounded top, 62vh cap); header flattens to centered title + close.
 - [ ] Dialog semantics: `role="dialog"` + `aria-modal`, labelled by the fire name, focus trapped while open, Escape closes, focus returns to the opening marker.
+- [ ] Passes the quality gate: `oxlint --deny-warnings` and `oxfmt --check` clean on this slice's changes.

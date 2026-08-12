@@ -12,3 +12,4 @@
 - [ ] Closed chip in the ledger and the panel status reads Closed (from `closed`).
 - [ ] Ticker splits active/closed aggregates under All; single count under Open.
 - [ ] Recency / magnitude / search filters apply identically under both statuses.
+- [ ] Passes the quality gate: `oxlint --deny-warnings` and `oxfmt --check` clean on this slice's changes.

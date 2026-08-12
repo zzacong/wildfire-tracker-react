@@ -10,3 +10,4 @@
 - [ ] `aria-live="polite"` region announcing **changed aggregates only** on a 5m poll (no full re-announcement).
 - [ ] Data rendered in JetBrains Mono, dense stat-cell layout per the design tokens.
 - [ ] Pulse/glow animation cut to `0ms` under `prefers-reduced-motion`.
+- [ ] Passes the quality gate: `oxlint --deny-warnings` and `oxfmt --check` clean on this slice's changes.

@@ -7,7 +7,7 @@ A complete, decision-locked blueprint for the rebuilt wildfire tracker, written 
 ## Notes
 
 - Domain: NASA EONET v3 wildfires feed, rendered as a public wildfire-tracking map.
-- Stack (locked in charting): TanStack Start + TypeScript; MapLibre GL JS + OpenFreeMap basemap; Tailwind v4 + shadcn/ui; deployed to Vercel via Nitro.
+- Stack (locked in charting): TanStack Start + TypeScript; MapLibre GL JS + OpenFreeMap basemap; Tailwind v4 + shadcn/ui; deployed to Vercel via Nitro; **pnpm** for packages, **oxlint + oxfmt** for the lint/format gate (ADRs 0001/0002).
 - Audience (locked): public product — correctness and production hygiene matter.
 - Data scope (locked): wildfires only (EONET `category=wildfires`), no other disaster categories in v1.
 - Resolve tickets with `/grilling` + `/domain-modeling` (HITL) and `/research` (AFK) per type.
@@ -25,7 +25,9 @@ A complete, decision-locked blueprint for the rebuilt wildfire tracker, written 
 - [Prototype: Rich fire detail panel](issues/05-prototype-rich-fire-detail-panel.md) — **POPOVER** placement (floating docked card, 340px, top-right over a shaded map) chosen live over sidebar and full-screen route. Opens from any selection path (marker / ledger / search) via one selection state. Grounded fields only: status, size-acres hero, last-updated, UTC timestamp, coordinates, EONET ID, source buttons out to IRWIN/GDACS, and a dashed "absent-fields" note (containment/cause/agency/imagery link out, never promised). Collapses to a bottom sheet <820px. Prototype: `prototypes/detail-panel/index.html` (placements a/b/c switchable).
 - [Grilling: Design system accessibility baseline](issues/06-grilling-design-system-accessibility.md) — AA **4.5:1 at all sizes** locked for every text token: bone/muted/accent all pass (verified 5.3–15.6:1); **`faint` bumps `#70795f` → `#828c70`** (4.66 panel / 5.18 forest) so 10–13px mono data passes. One focus ring token (2px bone outline + 2px offset, `:focus-visible`) + dark halo behind map markers (≥3:1 over any tile). `prefers-reduced-motion: reduce` cuts all animation (`0ms`): LIVE dot solid, ring static, no fades. Markers = uniform flame + halo, no size encoding, small on-map key text. SR/kbd structure: ledger = `<ol>` of buttons with `aria-pressed`; ticker = `aria-live="polite"` announcing only changed aggregates; markers = `tabindex=0` buttons with size in label; detail panel (per 05) = `role=dialog`+`aria-modal`, trapped focus, Escape closes, focus returns to opener. Themeable? No — dark-primary stays.
 - [Spec: Modern Rebuild v1](spec.md) — **the decision-locked blueprint**; destination reached. Encodes tickets 01–06 + closes the fog: **Open/All toggle ships** as a working segmented control (Open default = `status=open`; All = `status=all` bounded `days=30`, closed fires muted-flame + Closed chip + active/closed ticker split; bounded closed view ≠ archive browser). Data contract normalized (newest geometry, Point-or-Polygon defense, nullable description fallback, no per-event fetch). Testing seams: BFF route integration (fetch stubbed) + derived-dataset/component seam (MapLibre stubbed). Deployment specifics deferred to build.
-- [Implementation tickets](issues/07-scaffold-and-design-system.md) — 10 tracer-bullet slices `07–16` numbered after the six decision tickets (edges avoid collision with 01–06): 07 scaffold+tokens → 08 BFF route (Seam A) → 09 live map bullet (SSR + markers + selection) → 10 freshness/resilience → 11 filters & search (derived set) → 12 ledger → 13 ticker → 14 detail panel → 15 Open/All toggle (closed treatment) → 16 masthead assembly. Frontier: 07 (no blockers).
+- [Implementation tickets](issues/07-scaffold-and-design-system.md) — 10 tracer-bullet slices `07–16` numbered after the six decision tickets (edges avoid collision with 01–06): 07 scaffold+tokens+lint/format gate → 08 BFF route (Seam A) → 09 live map bullet (SSR + markers + selection) → 10 freshness/resilience → 11 filters & search (derived set) → 12 ledger → 13 ticker → 14 detail panel → 15 Open/All toggle (closed treatment) → 16 masthead assembly. Every slice (08–16) carries the shared quality-gate line (`oxlint --deny-warnings` + `oxfmt --check` clean). Frontier: 07 (no blockers).
+- [ADR: oxlint + oxfmt toolchain](../docs/adr/0001-oxlint-oxfmt-lint-format-toolchain.md) — the lint/format gate is **oxlint** (correctness + `react` + `jsx-a11y`, `--deny-warnings`) + **oxfmt** (printWidth 80, Tailwind/import sorting, `--check`); Rust-native, no ESLint/Prettier in the rebuild. Setup lands in ticket 07; every implementation ticket carries the gate line; CI wiring stays a fog item.
+- [ADR: pnpm package manager](../docs/adr/0002-pnpm-package-manager.md) — the rebuild is managed with **pnpm** (`pnpm-lock.yaml` committed; CRA `yarn.lock` + eslintConfig retired in ticket 07).
 
 ## Not yet specified
 
@@ -33,7 +35,7 @@ A complete, decision-locked blueprint for the rebuilt wildfire tracker, written 
 - **Layered data sources** (later roadmap) — FIRMS hotspots, CAL FIRE overlays: how do they compose with EONET?
 - **History / archived fires** (later roadmap) — unbounded date-range browsing over `status=all` data (spec: All toggle's `days=30` view is the v1 frontier).
 - **Vercel deployment specifics** — Nitro preset, env vars, any keys (spec defers to build time).
-- **CI wiring** — lint/typing/the two test seams are per-PR at build (spec scopes the quality bar; CI config itself undecided).
+- **CI wiring** — the lint/format tools are locked (ADRs 0001/0002, script-level per-PR gate); wiring an actual CI pipeline that runs `oxlint --deny-warnings`, `oxfmt --check`, typing, and the two test seams is undecided.
 
 ## Out of scope
 

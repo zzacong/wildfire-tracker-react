@@ -11,3 +11,4 @@
 - [ ] Defensive contract handling: `Polygon` geometry derives a marker point (envelope center); events with zero geometry are dropped; magnitude kept as acres or null.
 - [ ] Nitro SWR cache with 5m TTL, **keyed by status** — an `open` request never serves an `all` payload or vice-versa.
 - [ ] Seam A tests (in-process route invocation, upstream `fetch` stubbed): normalized contract shape; status param routing; newest-geometry selection; nullable-description fallback; null magnitude preserved; polygon envelope derivation; malformed/zero-geometry events dropped; no upstream call within TTL + revalidation after; status-cache isolation; first-load failure surfaces as a first-load error.
+- [ ] Passes the quality gate: `oxlint --deny-warnings` and `oxfmt --check` clean on this slice's changes.

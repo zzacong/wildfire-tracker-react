@@ -47,7 +47,7 @@ Decisions reference the wayfinding tickets that locked them (`issues/01–06`). 
 
 ### Stack & project architecture (locked in charting)
 
-- TanStack Start + TypeScript; MapLibre GL JS with the **OpenFreeMap** basemap; Tailwind v4 + shadcn/ui; deployed to Vercel via **Nitro**. One app, no micro-architecture. The old CRA app (`src/`, react-scripts, google-map-react) is replaced, not migrated.
+- TanStack Start + TypeScript; MapLibre GL JS with the **OpenFreeMap** basemap; Tailwind v4 + shadcn/ui; deployed to Vercel via **Nitro**; managed with **pnpm** (ADR 0002). One app, no micro-architecture. The old CRA app (`src/`, react-scripts, google-map-react) is replaced, not migrated.
 - **Dark-primary, not themeable** (ticket 03/06): no light mode v1.
 
 ### Domain vocabulary
@@ -128,6 +128,7 @@ Bold Space Grotesk masthead + segmented **Open/All** toggle + LIVE pulse on the 
   - Detail panel: opens from marker / ledger / search; one selection state; dialog `role` + `aria-modal`, focus trap, Escape closes, focus returns to opener; bottom-sheet switch under 820px (viewport-mocked).
   - A11y: ledger `<ol>` of buttons with `aria-pressed` + accessible names; markers as buttons with size labels; ticker `aria-live="polite"` announcing only changed aggregates; focus ring and reduced-motion tokens apply (emulate `prefers-reduced-motion`).
   - UI contract keeps these in one test seam: the derived-set selector is exercised **through** the components that render it, not as free-standing units.
+- **Quality gate (ADR 0001)**: the rebuild lints with **oxlint** and formats with **oxfmt** — Rust-native, no ESLint/Prettier in the stack. `oxlint --deny-warnings` enforces the `correctness` category plus the `react` and `jsx-a11y` plugins; `oxfmt --check` enforces formatting (printWidth 80, Tailwind class + import sorting on). Both must pass clean per-PR with the build.
 - **Prior art**: thin — the repo's only precedent is the CRA harness (`@testing-library/react` in `package.json`); the rebuild introduces Vitest + React Testing Library + user-event. Tests live beside the modules they cover and ship with the feature (CI wiring is out of scope — see below).
 
 ## Out of Scope
@@ -140,7 +141,7 @@ Bold Space Grotesk masthead + segmented **Open/All** toggle + LIVE pulse on the 
 - **Map-clustering / layer toggles / polygon-as-shape rendering** (datasets are tens-to-hundreds of events; points suffice).
 - **Deployment specifics** — Nitro preset/env/keys are settled at build time (`Vercel deployment specifics` fog).
 - **Theming / light mode** (dark-primary locked).
-- **CI wiring** — the quality bar (lint, typing, the two test seams) is enforced per-PR at build time.
+- **CI wiring** — the quality bar (oxlint + oxfmt per ADR 0001, typing, the two test seams) is enforced per-PR at build time; wiring CI itself is a later decision.
 
 ## Further Notes
 

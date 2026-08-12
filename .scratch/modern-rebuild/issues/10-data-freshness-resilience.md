@@ -12,3 +12,4 @@
 - [ ] Failed background refresh: stale dataset retained, non-blocking banner ("Couldn't refresh — showing data from Xm ago") + Retry button.
 - [ ] Failed **first** load only: full-screen error + retry.
 - [ ] Manual "Refresh now" busts the client cache and surfaces fresh data immediately.
+- [ ] Passes the quality gate: `oxlint --deny-warnings` and `oxfmt --check` clean on this slice's changes.

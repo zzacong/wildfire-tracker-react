@@ -9,3 +9,4 @@
 - [ ] Masthead renders: Space Grotesk bold brand display, LIVE pulse, Open/All segmented toggle, "Updated Xm ago", Refresh now, active-filter count — one consistent header row.
 - [ ] Reduced motion: LIVE dot solid, no pulse animation.
 - [ ] Header controls work with the filter bar, ledger, ticker, detail panel, and map together — the full v1 flow is demoable end-to-end as one product shell.
+- [ ] Passes the quality gate: `oxlint --deny-warnings` and `oxfmt --check` clean on this slice's changes.

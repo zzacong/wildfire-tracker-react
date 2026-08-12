@@ -13,3 +13,4 @@
 - [ ] Filters ∧ search AND into one visible set.
 - [ ] "No fires match" empty state + one-tap Clear filters; active-filter count always visible.
 - [ ] Flat one-row bar — no nested drawers in v1.
+- [ ] Passes the quality gate: `oxlint --deny-warnings` and `oxfmt --check` clean on this slice's changes.

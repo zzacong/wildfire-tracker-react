@@ -12,3 +12,4 @@
 - [ ] Status chip on each row (Open; the Closed treatment arrives with ticket 15).
 - [ ] LIVE pulse on the ledger head; static (solid dot) under `prefers-reduced-motion`.
 - [ ] Selecting a row drives the same shared selection state as the markers.
+- [ ] Passes the quality gate: `oxlint --deny-warnings` and `oxfmt --check` clean on this slice's changes.
