@@ -1,5 +1,3 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 /node_modules
 /.pnp
@@ -9,7 +7,14 @@
 /coverage
 
 # production
-/build
+/dist
+
+# TanStack Start build artifacts
+/.output
+/.nitro
+/.vinxi
+/.tanstack
+/__unconfig*
 
 # misc
 .DS_Store
@@ -19,5 +24,3 @@
 .env.production.local
 
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
