@@ -18,6 +18,8 @@ A complete, decision-locked blueprint for the rebuilt wildfire tracker, written 
 
 <!-- the index — one line per closed ticket: enough to judge relevance, then zoom the link for the detail the ticket holds -->
 
+- [Research: EONET v3 wildfire data contract](issues/01-research-eonet-v3-data-contract.md) — live-verified contract: string `wildfires` category, `{id,title,description(nullable),link,closed,categories,sources,geometry}` with magnitude in acres; no key, CORS `*`, 60/min. Detail panel shows size/date/source-links; containment/cause/agency/imagery are ABSENT → link out to IRWIN/GDACS. `status=all`+`days`/`start`/`end` verified for the archive roadmap.
+
 ## Not yet specified
 
 - **Alerts & subscriptions** (later roadmap) — needs identity/auth of some kind; which notification channel?
