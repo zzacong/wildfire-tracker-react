@@ -17,3 +17,5 @@ The WILDLAND LEDGER direction (ticket 03) is dark-primary with bone-on-forest ty
 Output: a concrete accessibility bar the spec's design-token and typography sections can encode.
 
 ## Answer
+
+<!-- Note (2026-08-12, ticket 05): the rich fire detail panel is now locked as a popover (see ticket 05) — this ticket's focus-visible and screen-reader decisions must also cover the panel as a dialog: focus trap while open, aria role/dialog, Escape-to-dismiss. -->
