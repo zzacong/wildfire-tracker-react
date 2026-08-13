@@ -51,6 +51,13 @@ export interface Fire {
   geometry: FireGeometry;
 }
 
+export interface WildfiresResult {
+  status: WildfireStatus;
+  fires: Fire[];
+  fetchedAt: string;
+  stale: boolean;
+}
+
 export function normalizeEonetEnvelope(envelope: EonetEnvelope): Fire[] {
   const events = Array.isArray(envelope?.events) ? envelope.events : [];
   const fires: Fire[] = [];

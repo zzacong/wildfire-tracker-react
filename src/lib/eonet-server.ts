@@ -3,17 +3,11 @@ import {
   type EonetEnvelope,
   type Fire,
   type WildfireStatus,
+  type WildfiresResult,
 } from './eonet';
 
 export const EONET_BASE_URL = 'https://eonet.gsfc.nasa.gov/api/v3/events';
 export const EONET_CACHE_TTL_MS = 5 * 60 * 1000;
-
-export interface WildfiresResult {
-  status: WildfireStatus;
-  fires: Fire[];
-  fetchedAt: string;
-  stale: boolean;
-}
 
 interface CacheEntry {
   fires: Fire[];
