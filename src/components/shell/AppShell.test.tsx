@@ -9,9 +9,31 @@ import { wildfiresQueryKey } from '#/lib/wildfires';
 
 const mapFiresMock = vi.fn();
 vi.mock('#/components/map/MapSurface', () => ({
-  MapSurface: ({ fires }: { fires: Fire[] }) => {
+  MapSurface: ({
+    fires,
+    selectedFireId,
+    onSelectFire,
+  }: {
+    fires: Fire[];
+    selectedFireId: string | null;
+    onSelectFire: (id: string) => void;
+  }) => {
     mapFiresMock(fires);
-    return <main aria-label="Map" />;
+    return (
+      <main aria-label="Map">
+        {fires.map((f) => (
+          <button
+            key={f.id}
+            type="button"
+            aria-label={f.title}
+            aria-pressed={f.id === selectedFireId}
+            onClick={() => onSelectFire(f.id)}
+          >
+            {f.title}
+          </button>
+        ))}
+      </main>
+    );
   },
 }));
 
@@ -39,6 +61,14 @@ function renderAppShell(queryClient: QueryClient) {
       <AppShell />
     </QueryClientProvider>,
   );
+}
+
+function seedFires(...fires: Fire[]) {
+  const queryClient = seedQueryClient({ staleTime: Infinity });
+  queryClient.setQueryData(wildfiresQueryKey('open'), result({ fires }), {
+    updatedAt: Date.now(),
+  });
+  return queryClient;
 }
 
 describe('AppShell', () => {
@@ -144,14 +174,6 @@ describe('AppShell', () => {
   });
 
   describe('filters & search on the derived set', () => {
-    function seedFires(...fires: Fire[]) {
-      const queryClient = seedQueryClient({ staleTime: Infinity });
-      queryClient.setQueryData(wildfiresQueryKey('open'), result({ fires }), {
-        updatedAt: Date.now(),
-      });
-      return queryClient;
-    }
-
     it('projects the derived set onto the map markers', async () => {
       const recentLarge = fire({
         id: 'EONET_RECENT_LARGE',
@@ -347,6 +369,89 @@ describe('AppShell', () => {
       await waitFor(() =>
         expect(mapFiresMock).toHaveBeenLastCalledWith([withinDay]),
       );
+    });
+  });
+
+  describe('detail panel wiring', () => {
+    it('opens the detail panel when a fire is selected and restores focus on Escape', async () => {
+      const user = userEvent.setup();
+      renderAppShell(seedFires(fire()));
+      const marker = screen.getByRole('button', {
+        name: 'Wildfire Harris, Rosebud, Montana',
+      });
+
+      await user.click(marker);
+
+      const dialog = screen.getByRole('dialog');
+      expect(dialog).toHaveAccessibleName('Wildfire Harris, Rosebud, Montana');
+      expect(dialog).toHaveAttribute('aria-modal', 'true');
+
+      await user.keyboard('{Escape}');
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(marker).toHaveFocus();
+    });
+
+    it('keeps the selected fire in the panel even when filters hide it', async () => {
+      const user = userEvent.setup();
+      const small = fire({
+        id: 'EONET_SMALL',
+        geometry: { ...fire().geometry, magnitudeValue: 50 },
+      });
+      renderAppShell(seedFires(small));
+      const marker = screen.getByRole('button', {
+        name: 'Wildfire Harris, Rosebud, Montana',
+      });
+
+      await user.click(marker);
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+      await user.selectOptions(
+        screen.getByRole('combobox', { name: /magnitude/i }),
+        '>10k',
+      );
+
+      await waitFor(() => expect(mapFiresMock).toHaveBeenLastCalledWith([]));
+      expect(screen.getByRole('dialog')).toHaveAccessibleName(
+        'Wildfire Harris, Rosebud, Montana',
+      );
+    });
+
+    it('swaps the panel content in place when another fire is selected', async () => {
+      const user = userEvent.setup();
+      renderAppShell(
+        seedFires(fire(), fire({ id: 'EONET_2', title: 'Lost Lake Fire' })),
+      );
+
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Wildfire Harris, Rosebud, Montana',
+        }),
+      );
+      const dialog = screen.getByRole('dialog');
+
+      await user.click(screen.getByRole('button', { name: 'Lost Lake Fire' }));
+
+      expect(screen.getByRole('dialog')).toBe(dialog);
+      expect(dialog).toHaveAccessibleName('Lost Lake Fire');
+    });
+
+    it('closes the panel via the close button', async () => {
+      const user = userEvent.setup();
+      renderAppShell(seedFires(fire()));
+
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Wildfire Harris, Rosebud, Montana',
+        }),
+      );
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole('button', { name: 'Close detail panel' }),
+      );
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
 });
