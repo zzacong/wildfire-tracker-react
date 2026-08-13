@@ -8,6 +8,7 @@ import { wildfiresQueryKey, wildfiresQueryOptions } from '#/lib/wildfires';
 
 import { BurnTicker } from './BurnTicker';
 import { FilterBar } from './FilterBar';
+import { FireDetailPanel } from './FireDetailPanel';
 import { FiresEmptyState } from './FiresEmptyState';
 import { FirstLoadError } from './FirstLoadError';
 import { LedgerRail } from './LedgerRail';
@@ -36,6 +37,11 @@ export function AppShell() {
     () => selectVisibleFires(fires, filters, now),
     [fires, filters, now],
   );
+  const selectedFire = useMemo(
+    () => fires.find((fire) => fire.id === selectedFireId) ?? null,
+    [fires, selectedFireId],
+  );
+  const clearSelection = () => setSelectedFireId(null);
 
   if (isError && !data) {
     return <FirstLoadError onRetry={bustCacheAndRefresh} />;
@@ -70,6 +76,9 @@ export function AppShell() {
           )}
           {data && fires.length === 0 && visibleFires.length === 0 && (
             <FiresEmptyState />
+          )}
+          {selectedFire && (
+            <FireDetailPanel fire={selectedFire} onClose={clearSelection} />
           )}
         </div>
         <BurnTicker />
