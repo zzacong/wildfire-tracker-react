@@ -47,6 +47,9 @@ export function AppShell() {
         updatedAt={dataUpdatedAt > 0 ? dataUpdatedAt : null}
         isRefreshing={isFetching}
         onRefresh={bustCacheAndRefresh}
+        fires={visibleFires}
+        selectedFireId={selectedFireId}
+        onSelectFire={onSelectFire}
       />
       <div className="flex min-w-0 flex-1 flex-col">
         {isError && data && (
