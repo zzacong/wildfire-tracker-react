@@ -72,7 +72,10 @@ export function AppShell() {
             <FiresEmptyState />
           )}
         </div>
-        <BurnTicker />
+        <BurnTicker
+          fires={visibleFires}
+          dataUpdatedAt={dataUpdatedAt > 0 ? dataUpdatedAt : null}
+        />
       </div>
     </div>
   );
