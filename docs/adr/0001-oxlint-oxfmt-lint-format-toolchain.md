@@ -15,4 +15,4 @@ accepted
 
 - Config lives at scaffold (ticket 07): `.oxlintrc.json` + `.oxfmtrc.json`, npm packages `oxlint` and `oxfmt`.
 - Oxfmt is still **beta** (v0.63, not 1.0); both tools are pinned so the CLI and the `oxc.oxc-vscode` editor extension never drift.
-- Enforced gate per-PR: `oxlint --deny-warnings` (correctness + `react` + `jsx-a11y`) and `oxfmt --check` (printWidth 80, Tailwind + import sorting) must pass clean. CI wiring itself stays out of scope (spec "Out of scope").
+- Enforced gate per-PR: `oxlint --deny-warnings` (correctness + `react` + `jsx-a11y`) and `oxfmt --check` (printWidth 80, Tailwind + import sorting) must pass clean. The `pnpm check` script runs lint + typecheck + format:check + test together. CI wiring itself stays out of scope (spec "Out of scope").

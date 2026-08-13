@@ -27,6 +27,10 @@ Single-context: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agent
 
 Colocate each test beside the module it covers (`src/lib/x.ts` → `src/lib/x.test.ts`). The one exception is `src/routes/`: TanStack Start treats every file there as a route, so a test dropped in becomes a route — mirror route tests under `src/test/routes/...` (e.g. `src/test/routes/api/eonet.test.ts`).
 
+## Checks
+
+The full quality gate is `pnpm check` — lint, typecheck, format:check, and test — run it after finishing work.
+
 ## Commits
 
 Use semantic commit messages: `type[scope]: description`. Types: feat, fix, docs, refactor, chore, perf, style, test.

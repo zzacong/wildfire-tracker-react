@@ -30,7 +30,8 @@ pnpm typecheck    # tsc --noEmit
 pnpm lint         # oxlint --deny-warnings
 pnpm format:check # oxfmt --check
 pnpm format       # oxfmt --write
+pnpm check        # all checks: lint + typecheck + format:check + test
 ```
 
-The quality gate per slice is `oxlint --deny-warnings` + `oxfmt --check` clean,
-typing clean, and the test seams green.
+The quality gate per slice is `pnpm check` — `oxlint --deny-warnings` +
+`oxfmt --check` clean, typing clean, and the test seams green.
