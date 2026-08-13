@@ -7,8 +7,12 @@ import { AppShell } from '#/components/shell/AppShell';
 import type { Fire, WildfiresResult } from '#/lib/eonet';
 import { wildfiresQueryKey } from '#/lib/wildfires';
 
+const mapFiresMock = vi.fn();
 vi.mock('#/components/map/MapSurface', () => ({
-  MapSurface: () => <main aria-label="Map" />,
+  MapSurface: ({ fires }: { fires: Fire[] }) => {
+    mapFiresMock(fires);
+    return <main aria-label="Map" />;
+  },
 }));
 
 function result(overrides: Partial<WildfiresResult> = {}): WildfiresResult {
@@ -137,6 +141,213 @@ describe('AppShell', () => {
     await waitFor(() =>
       expect(screen.queryByText('Updated 5m ago')).not.toBeInTheDocument(),
     );
+  });
+
+  describe('filters & search on the derived set', () => {
+    function seedFires(...fires: Fire[]) {
+      const queryClient = seedQueryClient({ staleTime: Infinity });
+      queryClient.setQueryData(wildfiresQueryKey('open'), result({ fires }), {
+        updatedAt: Date.now(),
+      });
+      return queryClient;
+    }
+
+    it('projects the derived set onto the map markers', async () => {
+      const recentLarge = fire({
+        id: 'EONET_RECENT_LARGE',
+        title: 'Massive Blaze',
+        geometry: {
+          ...fire().geometry,
+          date: '2026-08-13T06:00:00Z',
+          magnitudeValue: 5000,
+        },
+      });
+      const oldNull = fire({
+        id: 'EONET_OLD_NULL',
+        title: 'Lazy Creek Fire',
+        geometry: {
+          ...fire().geometry,
+          date: '2026-08-01T00:00:00Z',
+          magnitudeValue: null,
+        },
+      });
+      renderAppShell(seedFires(recentLarge, oldNull));
+
+      await userEvent.selectOptions(
+        screen.getByRole('combobox', { name: /magnitude/i }),
+        '>1k',
+      );
+
+      await waitFor(() =>
+        expect(mapFiresMock).toHaveBeenLastCalledWith([recentLarge]),
+      );
+    });
+
+    it('ANDs recency, magnitude, and search into one visible set', async () => {
+      const user = userEvent.setup();
+      const recentLargeAshland = fire({
+        id: 'EONET_A',
+        title: 'Ashland Inferno',
+        geometry: {
+          ...fire().geometry,
+          date: '2026-08-13T10:00:00Z',
+          magnitudeValue: 20000,
+        },
+      });
+      const recentSmallAshland = fire({
+        id: 'EONET_B',
+        title: 'Ashland Creek',
+        geometry: {
+          ...fire().geometry,
+          date: '2026-08-13T10:00:00Z',
+          magnitudeValue: 10,
+        },
+      });
+      const oldHugeAshland = fire({
+        id: 'EONET_C',
+        title: 'Old Ashland Fire',
+        geometry: {
+          ...fire().geometry,
+          date: '2026-07-01T00:00:00Z',
+          magnitudeValue: 20000,
+        },
+      });
+      const recentHugeOther = fire({
+        id: 'EONET_D',
+        description: 'Near a remote ridge line',
+        geometry: {
+          ...fire().geometry,
+          date: '2026-08-13T10:00:00Z',
+          magnitudeValue: 20000,
+        },
+      });
+      renderAppShell(
+        seedFires(
+          recentLargeAshland,
+          recentSmallAshland,
+          oldHugeAshland,
+          recentHugeOther,
+        ),
+      );
+
+      const search = screen.getByRole('searchbox', { name: /search/i });
+      await user.type(search, 'ashland');
+      await user.selectOptions(
+        screen.getByRole('combobox', { name: /recency/i }),
+        '24h',
+      );
+      await user.selectOptions(
+        screen.getByRole('combobox', { name: /magnitude/i }),
+        '>10k',
+      );
+
+      await waitFor(() =>
+        expect(mapFiresMock).toHaveBeenLastCalledWith([recentLargeAshland]),
+      );
+      expect(screen.getByText('3 active')).toBeInTheDocument();
+    });
+
+    it('shows the empty state and clears all filters with one tap', async () => {
+      const user = userEvent.setup();
+      const recentSmall = fire({
+        id: 'EONET_1',
+        geometry: {
+          ...fire().geometry,
+          date: '2026-08-13T06:00:00Z',
+          magnitudeValue: 50,
+        },
+      });
+      renderAppShell(seedFires(recentSmall));
+
+      await user.selectOptions(
+        screen.getByRole('combobox', { name: /magnitude/i }),
+        '>10k',
+      );
+
+      expect(
+        await screen.findByText('No fires match the current filters'),
+      ).toBeInTheDocument();
+      expect(screen.getByText('1 active')).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: /clear filters/i }));
+
+      await waitFor(() =>
+        expect(mapFiresMock).toHaveBeenLastCalledWith([recentSmall]),
+      );
+      expect(
+        screen.queryByText('No fires match the current filters'),
+      ).not.toBeInTheDocument();
+      expect(screen.getByText('0 active')).toBeInTheDocument();
+    });
+
+    it('does not show the empty state for an empty feed', async () => {
+      renderAppShell(seedFires());
+
+      expect(
+        screen.queryByText('No fires match the current filters'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('keeps boundary magnitudes and excludes null-magnitude fires under a threshold', async () => {
+      const atHundred = fire({
+        id: 'EONET_AT_100',
+        geometry: {
+          ...fire().geometry,
+          magnitudeValue: 100,
+        },
+      });
+      const underHundred = fire({
+        id: 'EONET_UNDER_100',
+        geometry: {
+          ...fire().geometry,
+          magnitudeValue: 99,
+        },
+      });
+      const nullMagnitude = fire({
+        id: 'EONET_NULL_MAG',
+        geometry: {
+          ...fire().geometry,
+          magnitudeValue: null,
+        },
+      });
+      renderAppShell(seedFires(atHundred, underHundred, nullMagnitude));
+
+      await userEvent.selectOptions(
+        screen.getByRole('combobox', { name: /magnitude/i }),
+        '>100',
+      );
+
+      await waitFor(() =>
+        expect(mapFiresMock).toHaveBeenLastCalledWith([atHundred]),
+      );
+    });
+
+    it('slices recency by the 24h window on the latest update date', async () => {
+      const withinDay = fire({
+        id: 'EONET_WITHIN_24H',
+        geometry: {
+          ...fire().geometry,
+          date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        },
+      });
+      const olderThanDay = fire({
+        id: 'EONET_OLDER_24H',
+        geometry: {
+          ...fire().geometry,
+          date: new Date(Date.now() - 30 * 60 * 60 * 1000).toISOString(),
+        },
+      });
+      renderAppShell(seedFires(withinDay, olderThanDay));
+
+      await userEvent.selectOptions(
+        screen.getByRole('combobox', { name: /recency/i }),
+        '24h',
+      );
+
+      await waitFor(() =>
+        expect(mapFiresMock).toHaveBeenLastCalledWith([withinDay]),
+      );
+    });
   });
 });
 
