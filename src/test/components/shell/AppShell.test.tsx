@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { AppShell } from './AppShell';
+import { AppShell } from '#/components/shell/AppShell';
 
 describe('AppShell', () => {
   it('renders the dark-primary situation-room regions', () => {

@@ -6,8 +6,7 @@ import {
   eonetUrl,
   resetEonetCache,
 } from '#/lib/eonet-server';
-
-import { handleEonetGet } from './eonet';
+import { handleEonetGet } from '#/routes/api/eonet';
 
 const OPEN_URL = 'http://localhost/api/eonet?status=open';
 const ALL_URL = 'http://localhost/api/eonet?status=all';
