@@ -23,6 +23,10 @@ Five canonical roles: needs-triage, needs-info, ready-for-agent, ready-for-human
 
 Single-context: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
 
+## Tests
+
+Colocate each test beside the module it covers (`src/lib/x.ts` → `src/lib/x.test.ts`). The one exception is `src/routes/`: TanStack Start treats every file there as a route, so a test dropped in becomes a route — mirror route tests under `src/test/routes/...` (e.g. `src/test/routes/api/eonet.test.ts`).
+
 ## Commits
 
 Use semantic commit messages: `type[scope]: description`. Types: feat, fix, docs, refactor, chore, perf, style, test.
