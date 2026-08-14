@@ -1,6 +1,6 @@
 # Modern Rebuild — Wildfire Tracker v1 Spec
 
-Status: ready-for-agent
+Status: resolved
 
 Effort: `.scratch/modern-rebuild/` (wayfinding map: `map.md`; decision tickets: `issues/01–06`; prototypes: `prototypes/visual-design-language/index.html`, `prototypes/detail-panel/index.html`).
 
