@@ -1,6 +1,6 @@
 # 10 - Deploy to hosting target
 
-Status: ready-for-agent
+Status: claimed
 Blocked by: 01
 
 - Configure deployment for **Vercel** (chosen deliberately; TanStack Start does not list Vercel as an official partner — expect the Nitro plugin path and verify SSR + server functions work on the live deploy).

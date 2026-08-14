@@ -1,6 +1,6 @@
 # 03 - Map basemap + layout shell
 
-Status: ready-for-agent
+Status: claimed
 Blocked by: 01
 Skills: load `/design-taste-frontend` and `/impeccable` before building any UI for this ticket.
 
