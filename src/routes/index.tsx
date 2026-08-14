@@ -1,6 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/")({ component: Home });
+import { hazardEventsHeaders, hazardEventsLoader } from "../lib/hazard-events";
+
+export const Route = createFileRoute("/")({
+  loader: hazardEventsLoader,
+  headers: hazardEventsHeaders,
+  component: Home,
+});
 
 function Home() {
   return (
