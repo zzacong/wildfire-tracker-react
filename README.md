@@ -17,6 +17,28 @@ To build this application for production:
 pnpm build
 ```
 
+# Deployment (Vercel)
+
+Hosting is **Vercel**, deployed via the [Nitro](https://nitro.build/) Vite plugin (`nitro` in `vite.config.ts`). No environment secrets are required — EONET and OpenFreeMap are keyless. `vercel.json` pins the framework preset so Vercel always builds it as a TanStack Start app.
+
+Deploy via CLI (preview):
+
+```bash
+vercel deploy --no-wait --scope <team-slug>
+```
+
+Or push to the Git remote — Vercel detects TanStack Start/Nitro and builds automatically. On Vercel, Nitro auto-detects the `vercel` preset and emits `.vercel/output` (serverless `__server` function + static assets).
+
+Verification checklist for a live deploy:
+
+- `pnpm build` passes locally and produces Nitro SSR output (`.output/` locally, `.vercel/output` on Vercel).
+- The deployed root returns `200` with server-rendered HTML (route content present in the raw HTML, not just after hydration).
+- Client assets (CSS/JS) load with `200`.
+- Server functions return expected payloads (once the EONET data layer lands in ticket #02).
+- Force an upstream EONET failure and confirm the stale-data fallback + banner render rather than an error page (ticket #02).
+
+> Note: the per-deployment `*.vercel.app` URLs are SSO-protected by default; use the project alias (e.g. `https://<project>.vercel.app`) for unauthenticated checks.
+
 ## Styling
 
 This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.

@@ -28,6 +28,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.31.0",
+    "nitro": "npm:nitro-nightly@3.0.1-20260810-113911-16ff2809",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "shadcn": "^4.17.0",
