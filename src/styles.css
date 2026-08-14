@@ -110,6 +110,23 @@ body {
   overflow: hidden;
 }
 
+/* Dark basemap (prototype variant C — WILDLAND LEDGER): invert the
+   OpenFreeMap liberty tiles so the map sits in the forest palette. The
+   filter mirrors the prototype exactly; attribution flips to dark to match. */
+.maplibregl-canvas {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9)
+    saturate(0.7);
+}
+
+.maplibregl-ctrl-attrib {
+  background: rgba(17, 22, 15, 0.75);
+  color: var(--color-muted);
+}
+
+.maplibregl-ctrl-attrib a {
+  color: #d5dacb;
+}
+
 /* One focus ring — `:focus-visible` only, 2px bone outline + 2px offset */
 :where(a, button, input, textarea, select, [tabindex]):focus-visible {
   outline: var(--focus-ring);
