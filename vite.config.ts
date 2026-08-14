@@ -6,6 +6,9 @@ import { defineConfig } from 'vite';
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
+  optimizeDeps: {
+    exclude: ['maplibre-gl'],
+  },
   plugins: [nitro(), tailwindcss(), tanstackStart(), viteReact()],
 });
 

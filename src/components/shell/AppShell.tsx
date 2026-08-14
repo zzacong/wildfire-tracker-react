@@ -74,7 +74,7 @@ export function AppShell() {
           />
         )}
         {data && <FilterBar filters={filters} onChange={setFilters} />}
-        <div className="relative min-h-0 flex-1">
+        <div className="relative flex min-h-0 flex-1">
           <MapSurface
             fires={visibleFires}
             selectedFireId={selectedFireId}

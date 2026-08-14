@@ -33,6 +33,7 @@ vi.mock('maplibre-gl', () => {
       setAttribute: vi.fn(),
     });
     remove = vi.fn();
+    isStyleLoaded = vi.fn(() => true);
   }
 
   return {

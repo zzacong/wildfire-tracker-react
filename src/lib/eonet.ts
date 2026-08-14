@@ -142,11 +142,22 @@ function markerPoint(geometry: EonetGeometry): [number, number] | null {
 }
 
 function isLngLat(value: unknown): value is [number, number] {
+  if (
+    !Array.isArray(value) ||
+    value.length !== 2 ||
+    typeof value[0] !== 'number' ||
+    typeof value[1] !== 'number'
+  ) {
+    return false;
+  }
+  const [lng, lat] = value;
   return (
-    Array.isArray(value) &&
-    value.length === 2 &&
-    typeof value[0] === 'number' &&
-    typeof value[1] === 'number'
+    Number.isFinite(lng) &&
+    Number.isFinite(lat) &&
+    lng >= -180 &&
+    lng <= 180 &&
+    lat >= -90 &&
+    lat <= 90
   );
 }
 

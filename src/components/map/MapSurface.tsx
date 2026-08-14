@@ -44,6 +44,7 @@ export function MapSurface({
     );
     map.on('load', () => {
       map.getCanvas().setAttribute('aria-hidden', 'true');
+      renderMarkers();
     });
     mapRef.current = map;
     return () => {
@@ -56,12 +57,18 @@ export function MapSurface({
 
   useEffect(() => {
     const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+    renderMarkers();
+  }, [fires, selectedFireId]);
+
+  function renderMarkers() {
+    const map = mapRef.current;
     if (!map) return;
 
     markersRef.current.forEach((marker) => marker.remove());
     markersRef.current = [];
 
-    const { selectedFireId, onSelectFire } = propsRef.current;
+    const { fires, selectedFireId, onSelectFire } = propsRef.current;
     for (const fire of fires) {
       const [lng, lat] = fire.geometry.coordinates;
       const el = buildFireMarkerButton(fire, {
@@ -73,14 +80,14 @@ export function MapSurface({
         .addTo(map);
       markersRef.current.push(marker);
     }
-  }, [fires, selectedFireId]);
+  }
 
   return (
     <main
       aria-label="Map"
       className="bg-forest relative min-h-0 flex-1 overflow-hidden"
     >
-      <div ref={containerRef} className="absolute inset-0" />
+      <div ref={containerRef} className="h-full w-full" />
       {isLoading && fires.length === 0 && (
         <output className="absolute inset-0 z-10 grid place-items-center">
           <span className="text-muted font-mono">Loading fires…</span>
