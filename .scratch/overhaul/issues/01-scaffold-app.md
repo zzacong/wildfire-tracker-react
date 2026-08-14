@@ -1,6 +1,6 @@
 # 01 - Scaffold TanStack Start app
 
-Status: ready-for-agent
+Status: claimed
 Blocked by: none
 
 Scaffold the project in place (replacing CRA `src/`):

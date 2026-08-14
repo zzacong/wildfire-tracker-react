@@ -1,6 +1,6 @@
 # 02 - Server-side EONET data layer
 
-Status: ready-for-agent
+Status: claimed
 Blocked by: 01
 
 Fetch hazard events server-side, browser never calls EONET:
