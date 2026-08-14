@@ -1,7 +1,11 @@
 # 02 - Server-side EONET data layer
 
-Status: claimed
+Status: resolved
 Blocked by: 01
+
+## Answer
+
+Server-side EONET fetch (`src/lib/eonet.server.ts`) with TTL cache, stale-while-revalidate, 1000-event cap, normalization to domain shape (`src/lib/hazard-event.ts`), geometry drop, failure fallback with `isStale`. Loader + Cache-Control headers in `src/lib/hazard-events.ts`. 28 unit tests. Committed as `feat(data): add server-side EONET data layer with caching and cap` (squash-merged).
 
 Fetch hazard events server-side, browser never calls EONET:
 
