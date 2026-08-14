@@ -1,7 +1,11 @@
 # 01 - Scaffold TanStack Start app
 
-Status: claimed
+Status: resolved
 Blocked by: none
+
+## Answer
+
+Scaffolded TanStack Start + Tailwind v4 + shadcn/ui in place, replaced CRA `src/`, wired oxlint/oxfmt/vitest into `pnpm check`. Committed as `feat(scaffold): replace CRA app with TanStack Start + shadcn/ui` (squash-merged).
 
 Scaffold the project in place (replacing CRA `src/`):
 
