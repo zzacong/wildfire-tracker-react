@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { EonetEnvelope, EonetEvent, Fire } from '#/lib/eonet';
 import {
   EONET_CACHE_TTL_MS,
+  MAX_WILDFIRES,
   eonetUrl,
   resetEonetCache,
 } from '#/lib/eonet-server';
@@ -302,6 +303,17 @@ describe('GET /api/eonet — BFF route', () => {
     );
     expect(openAgain.fires[0].id).toBe('EONET_OPEN');
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('hard-caps the fires list at MAX_WILDFIRES', async () => {
+    const many = Array.from({ length: MAX_WILDFIRES + 2 }, (_, i) =>
+      event({ id: `EONET_${i}` }),
+    );
+    stubFetch(envelope(many));
+
+    const body = await getBody(await handleEonetGet(new Request(OPEN_URL)));
+    expect(body.fires).toHaveLength(MAX_WILDFIRES);
+    expect(body.fires[0].id).toBe('EONET_0');
   });
 
   it('surfaces a failed first load as an error', async () => {

@@ -8,6 +8,7 @@ import {
 
 export const EONET_BASE_URL = 'https://eonet.gsfc.nasa.gov/api/v3/events';
 export const EONET_CACHE_TTL_MS = 5 * 60 * 1000;
+export const MAX_WILDFIRES = 1000;
 
 interface CacheEntry {
   fires: Fire[];
@@ -46,7 +47,7 @@ async function refresh(status: WildfireStatus): Promise<CacheEntry> {
   const promise = fetchEnvelope(status)
     .then((envelope) => {
       const entry: CacheEntry = {
-        fires: normalizeEonetEnvelope(envelope),
+        fires: normalizeEonetEnvelope(envelope).slice(0, MAX_WILDFIRES),
         fetchedAt: Date.now(),
       };
       cache.set(status, entry);
