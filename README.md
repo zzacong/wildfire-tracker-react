@@ -1,70 +1,179 @@
-# Getting Started with Create React App
+Welcome to your new TanStack Start app!
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Getting Started
 
-## Available Scripts
+To run this application:
 
-In the project directory, you can run:
+```bash
+pnpm install
+pnpm dev
+```
 
-### `yarn start`
+# Building For Production
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+To build this application for production:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```bash
+pnpm build
+```
 
-### `yarn test`
+## Styling
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
 
-### `yarn build`
+### Removing Tailwind CSS
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+If you prefer not to use Tailwind CSS:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. Remove the demo pages in `src/routes/demo/`
+2. Replace the Tailwind import in `src/styles.css` with your own styles
+3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
+4. Remove `@tailwindcss/vite` and `tailwindcss` from `package.json`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Routing
 
-### `yarn eject`
+This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Adding A Route
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+To add a new route to your application just add a new file in the `./src/routes` directory.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+TanStack will automatically generate the content of the route file for you.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Now that you have two routes you can use a `Link` component to navigate between them.
 
-## Learn More
+### Adding Links
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```tsx
+import { Link } from "@tanstack/react-router";
+```
 
-### Code Splitting
+Then anywhere in your JSX you can use it like so:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```tsx
+<Link to="/about">About</Link>
+```
 
-### Analyzing the Bundle Size
+This will create a link that will navigate to the `/about` route.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
 
-### Making a Progressive Web App
+### Using A Layout
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
 
-### Advanced Configuration
+Here is an example layout that includes a header:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```tsx
+import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
 
-### Deployment
+export const Route = createRootRoute({
+  head: () => ({
+    meta: [
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { title: "My App" },
+    ],
+  }),
+  shellComponent: ({ children }) => (
+    <html lang="en">
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        <header>
+          <nav>
+            <Link to="/">Home</Link>
+            <Link to="/about">About</Link>
+          </nav>
+        </header>
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  ),
+});
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
 
-### `yarn build` fails to minify
+## Server Functions
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
+
+```tsx
+import { createServerFn } from "@tanstack/react-start";
+
+const getServerTime = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  return new Date().toISOString();
+});
+
+// Use in a component
+function MyComponent() {
+  const [time, setTime] = useState("");
+
+  useEffect(() => {
+    getServerTime().then(setTime);
+  }, []);
+
+  return <div>Server time: {time}</div>;
+}
+```
+
+## API Routes
+
+You can create API routes by using the `server` property in your route definitions:
+
+```tsx
+import { createFileRoute } from "@tanstack/react-router";
+import { json } from "@tanstack/react-start";
+
+export const Route = createFileRoute("/api/hello")({
+  server: {
+    handlers: {
+      GET: () => json({ message: "Hello, World!" }),
+    },
+  },
+});
+```
+
+## Data Fetching
+
+There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
+
+For example:
+
+```tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/people")({
+  loader: async () => {
+    const response = await fetch("https://swapi.dev/api/people");
+    return response.json();
+  },
+  component: PeopleComponent,
+});
+
+function PeopleComponent() {
+  const data = Route.useLoaderData();
+  return (
+    <ul>
+      {data.results.map((person) => (
+        <li key={person.name}>{person.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
+
+# Learn More
+
+You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+
+For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
