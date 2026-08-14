@@ -68,6 +68,24 @@ describe('buildFireMarkerButton', () => {
     expect(unselected.classList.contains('fire-marker--selected')).toBe(false);
   });
 
+  it('marks a closed fire with the muted closed class', () => {
+    const closed = buildFireMarkerButton(
+      fire({ closed: '2026-08-10T00:00:00Z' }),
+      {
+        selected: false,
+        onSelect: vi.fn(),
+      },
+    );
+
+    expect(closed.classList.contains('fire-marker--closed')).toBe(true);
+
+    const open = buildFireMarkerButton(fire(), {
+      selected: false,
+      onSelect: vi.fn(),
+    });
+    expect(open.classList.contains('fire-marker--closed')).toBe(false);
+  });
+
   it('renders a flame glyph with a dark halo disc, no number badges', () => {
     const button = buildFireMarkerButton(fire(), {
       selected: false,

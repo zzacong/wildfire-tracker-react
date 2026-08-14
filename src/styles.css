@@ -154,6 +154,16 @@ body {
   filter: drop-shadow(0 0 5px rgba(242, 103, 43, 0.7));
 }
 
+/* Closed fires (ticket 15): same uniform flame shape + halo, muted glyph,
+   no glow. Status is color + text, never size. */
+.fire-marker--closed .fire-marker__glyph {
+  color: var(--color-muted);
+}
+
+.fire-marker--closed .fire-marker__glyph svg {
+  filter: none;
+}
+
 /* Shared selection state: accent ring + glow (ticket 09) */
 .fire-marker--selected .fire-marker__halo {
   box-shadow:

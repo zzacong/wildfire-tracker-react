@@ -1,5 +1,5 @@
 import { formatFireSize } from '#/components/map/fireMarker';
-import type { Fire } from '#/lib/eonet';
+import type { Fire, WildfireStatus } from '#/lib/eonet';
 import { formatDataAge } from '#/lib/freshness';
 import { useNow } from '#/lib/use-now';
 import { cn } from '#/lib/utils';
@@ -13,6 +13,8 @@ export interface LedgerRailProps {
   fires: Fire[];
   selectedFireId: string | null;
   onSelectFire: (id: string) => void;
+  status: WildfireStatus;
+  onStatusChange: (status: WildfireStatus) => void;
 }
 
 function sourceName(fire: Fire): string {
@@ -26,6 +28,8 @@ export function LedgerRail({
   fires,
   selectedFireId,
   onSelectFire,
+  status,
+  onStatusChange,
 }: LedgerRailProps) {
   const now = useNow();
 
@@ -38,6 +42,8 @@ export function LedgerRail({
         updatedAt={updatedAt}
         isRefreshing={isRefreshing}
         onRefresh={onRefresh}
+        status={status}
+        onStatusChange={onStatusChange}
       />
       <div
         aria-label="Ledger entries"
@@ -71,9 +77,15 @@ export function LedgerRail({
                     {formatFireSize(fire.geometry.magnitudeValue)}
                   </span>
                   <span className="text-faint col-span-2 col-start-2 mt-0.5 font-mono text-[10px]">
-                    <span className="border-hairline text-accent rounded-[4px] border px-1 py-px font-mono text-[10px] font-medium tracking-[0.12em] uppercase">
-                      Open
-                    </span>
+                    {fire.closed === null ? (
+                      <span className="border-hairline text-accent rounded-[4px] border px-1 py-px font-mono text-[10px] font-medium tracking-[0.12em] uppercase">
+                        Open
+                      </span>
+                    ) : (
+                      <span className="border-hairline-strong text-muted rounded-[4px] border px-1 py-px font-mono text-[10px] font-medium tracking-[0.12em] uppercase">
+                        Closed
+                      </span>
+                    )}
                     <span aria-hidden="true"> · </span>
                     {formatDataAge(Date.parse(fire.geometry.date), now)}
                     <span aria-hidden="true"> · </span>

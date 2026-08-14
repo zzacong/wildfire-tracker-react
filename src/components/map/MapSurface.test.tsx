@@ -105,7 +105,7 @@ describe('MapSurface', () => {
 
     expect(
       screen.getByText(
-        'orange flame = active wildfire; size and status in the ledger/ticker',
+        'orange flame = active wildfire; muted flame = closed fire; size and status in the ledger/ticker',
       ),
     ).toBeInTheDocument();
   });
@@ -187,5 +187,28 @@ describe('MapSurface', () => {
         .find((el) => el.getAttribute('aria-pressed') === 'true')
         ?.getAttribute('aria-label'),
     ).toContain('Wildfire Harris');
+  });
+
+  it('renders a closed fire with the muted closed marker class', async () => {
+    const { MapSurface } = await import('./MapSurface');
+    render(
+      <MapSurface
+        fires={[
+          fire({ id: 'EONET_1' }),
+          fire({ id: 'EONET_2', closed: '2026-08-10T00:00:00Z' }),
+        ]}
+        selectedFireId={null}
+        onSelectFire={() => {}}
+        isLoading={false}
+      />,
+    );
+
+    const markers = markerInstances
+      .map((m) => m.element)
+      .filter((el): el is HTMLButtonElement => el instanceof HTMLButtonElement);
+
+    expect(markers).toHaveLength(2);
+    expect(markers[0].classList.contains('fire-marker--closed')).toBe(false);
+    expect(markers[1].classList.contains('fire-marker--closed')).toBe(true);
   });
 });

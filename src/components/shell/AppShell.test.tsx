@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { AppShell } from '#/components/shell/AppShell';
-import type { Fire, WildfiresResult } from '#/lib/eonet';
+import type { Fire, WildfireStatus, WildfiresResult } from '#/lib/eonet';
 import { wildfiresQueryKey } from '#/lib/wildfires';
 
 const mapFiresMock = vi.fn();
@@ -68,6 +68,19 @@ function seedFires(...fires: Fire[]) {
   queryClient.setQueryData(wildfiresQueryKey('open'), result({ fires }), {
     updatedAt: Date.now(),
   });
+  return queryClient;
+}
+
+function seedStatus(
+  queryClient: QueryClient,
+  status: WildfireStatus,
+  ...fires: Fire[]
+) {
+  queryClient.setQueryData(
+    wildfiresQueryKey(status),
+    result({ status, fires }),
+    { updatedAt: Date.now() },
+  );
   return queryClient;
 }
 
@@ -171,6 +184,161 @@ describe('AppShell', () => {
     await waitFor(() =>
       expect(screen.queryByText('Updated 5m ago')).not.toBeInTheDocument(),
     );
+  });
+
+  describe('Open/All status toggle', () => {
+    it('fetches the all feed when toggled from Open to All', async () => {
+      const user = userEvent.setup();
+      const allFires = [
+        fire({ id: 'EONET_A', title: 'Big Blaze' }),
+        fire({
+          id: 'EONET_B',
+          title: 'Burned Creek Fire',
+          closed: '2026-08-10T00:00:00Z',
+        }),
+      ];
+      renderAppShell(seedFires(fire()));
+
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValue(
+          Response.json(result({ status: 'all', fires: allFires })),
+        );
+      vi.stubGlobal('fetch', fetchMock);
+
+      await user.click(screen.getByRole('radio', { name: 'all' }));
+
+      await waitFor(() =>
+        expect(fetchMock).toHaveBeenCalledWith('/api/eonet?status=all'),
+      );
+      await waitFor(() =>
+        expect(mapFiresMock).toHaveBeenLastCalledWith(allFires),
+      );
+    });
+
+    it('swaps between status-keyed cache slots without refetching', async () => {
+      const user = userEvent.setup();
+      const closedFire = fire({
+        id: 'EONET_B',
+        title: 'Burned Creek Fire',
+        closed: '2026-08-10T00:00:00Z',
+      });
+      const queryClient = seedStatus(
+        seedFires(fire()),
+        'all',
+        fire(),
+        closedFire,
+      );
+      renderAppShell(queryClient);
+
+      const fetchMock = vi.fn();
+      vi.stubGlobal('fetch', fetchMock);
+
+      await user.click(screen.getByRole('radio', { name: 'all' }));
+
+      await waitFor(() =>
+        expect(mapFiresMock).toHaveBeenLastCalledWith([fire(), closedFire]),
+      );
+
+      await user.click(screen.getByRole('radio', { name: 'open' }));
+
+      await waitFor(() =>
+        expect(mapFiresMock).toHaveBeenLastCalledWith([fire()]),
+      );
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('splits the ticker active/closed aggregates under All', async () => {
+      const user = userEvent.setup();
+      const closedFire = fire({
+        id: 'EONET_B',
+        title: 'Burned Creek Fire',
+        closed: '2026-08-10T00:00:00Z',
+      });
+      const queryClient = seedStatus(
+        seedFires(fire()),
+        'all',
+        fire(),
+        closedFire,
+      );
+      renderAppShell(queryClient);
+
+      expect(screen.queryByText('Closed fires')).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole('radio', { name: 'all' }));
+
+      expect(screen.getByText('Closed fires')).toBeInTheDocument();
+      expect(screen.getByText('Active fires')).toBeInTheDocument();
+    });
+
+    it('invalidates the active status query key on Refresh now', async () => {
+      const user = userEvent.setup();
+      const queryClient = seedQueryClient({ staleTime: Infinity });
+      queryClient.setQueryData(wildfiresQueryKey('open'), result(), {
+        updatedAt: Date.now() - 5 * 60 * 1000,
+      });
+      queryClient.setQueryData(
+        wildfiresQueryKey('all'),
+        result({ status: 'all' }),
+        { updatedAt: Date.now() - 5 * 60 * 1000 },
+      );
+      renderAppShell(queryClient);
+
+      await user.click(screen.getByRole('radio', { name: 'all' }));
+
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValue(
+          Response.json(result({ status: 'all', fires: [fire()] })),
+        );
+      vi.stubGlobal('fetch', fetchMock);
+
+      await user.click(screen.getByRole('button', { name: 'Refresh now' }));
+
+      await waitFor(() =>
+        expect(fetchMock).toHaveBeenCalledWith('/api/eonet?status=all'),
+      );
+      expect(
+        fetchMock.mock.calls.some(
+          (call) => call[0] === '/api/eonet?status=open',
+        ),
+      ).toBe(false);
+    });
+
+    it('applies recency, magnitude, and search identically under All', async () => {
+      const user = userEvent.setup();
+      const bigOpen = fire({
+        id: 'EONET_A',
+        title: 'Ashland Inferno',
+        geometry: { ...fire().geometry, magnitudeValue: 5000 },
+      });
+      const smallClosed = fire({
+        id: 'EONET_B',
+        title: 'Lazy Creek Fire',
+        geometry: { ...fire().geometry, magnitudeValue: 50 },
+        closed: '2026-08-10T00:00:00Z',
+      });
+      const queryClient = seedStatus(
+        seedFires(bigOpen),
+        'all',
+        bigOpen,
+        smallClosed,
+      );
+      renderAppShell(queryClient);
+
+      await user.click(screen.getByRole('radio', { name: 'all' }));
+
+      const search = screen.getByRole('searchbox', { name: /search/i });
+      await user.type(search, 'ashland');
+      await user.selectOptions(
+        screen.getByRole('combobox', { name: /magnitude/i }),
+        '>1k',
+      );
+
+      await waitFor(() =>
+        expect(mapFiresMock).toHaveBeenLastCalledWith([bigOpen]),
+      );
+    });
   });
 
   describe('filters & search on the derived set', () => {

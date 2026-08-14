@@ -1,3 +1,6 @@
+import type { WildfireStatus } from '#/lib/eonet';
+import { cn } from '#/lib/utils';
+
 import { FlameIcon } from '../FlameIcon';
 import { FreshnessReadout } from './FreshnessReadout';
 
@@ -5,12 +8,18 @@ export interface MastheadProps {
   updatedAt: number | null;
   isRefreshing: boolean;
   onRefresh: () => void;
+  status: WildfireStatus;
+  onStatusChange: (status: WildfireStatus) => void;
 }
+
+export const STATUS_OPTIONS: WildfireStatus[] = ['open', 'all'];
 
 export function Masthead({
   updatedAt,
   isRefreshing,
   onRefresh,
+  status,
+  onStatusChange,
 }: MastheadProps) {
   return (
     <header className="border-hairline border-b px-6 pt-[26px] pb-[18px]">
@@ -19,6 +28,32 @@ export function Masthead({
         <h1 className="font-display text-bone text-[30px] leading-none font-bold tracking-[-0.02em]">
           WILDFIRE
         </h1>
+        <div className="border-hairline bg-forest ml-auto flex rounded-[8px] border p-0.5">
+          {STATUS_OPTIONS.map((option) => {
+            const active = status === option;
+            return (
+              <label
+                key={option}
+                className={cn(
+                  'has-[:focus-visible]:outline-bone has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-2 cursor-pointer rounded-[6px] px-3 py-1 font-mono text-[10px] font-medium tracking-[0.14em] uppercase',
+                  active
+                    ? 'bg-accent text-accent-ink'
+                    : 'text-muted hover:text-bone',
+                )}
+              >
+                <input
+                  type="radio"
+                  name="wildfire-status"
+                  value={option}
+                  checked={active}
+                  onChange={() => onStatusChange(option)}
+                  className="sr-only"
+                />
+                {option}
+              </label>
+            );
+          })}
+        </div>
       </div>
       <div className="text-muted mt-3 flex items-center gap-2.5 text-xs">
         <span className="text-accent flex items-center gap-1.5 font-mono text-[10px] font-medium tracking-[0.18em] uppercase">

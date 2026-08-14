@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 
 import { MapSurface } from '#/components/map/MapSurface';
+import type { WildfireStatus } from '#/lib/eonet';
 import { FIRE_FILTERS_DEFAULT, selectVisibleFires } from '#/lib/fire-filters';
 import { useNow } from '#/lib/use-now';
 import { wildfiresQueryKey, wildfiresQueryOptions } from '#/lib/wildfires';
@@ -16,8 +17,9 @@ import { RefreshBanner } from './RefreshBanner';
 
 export function AppShell() {
   const queryClient = useQueryClient();
+  const [status, setStatus] = useState<WildfireStatus>('open');
   const { data, dataUpdatedAt, isError, isFetching } = useQuery(
-    wildfiresQueryOptions('open'),
+    wildfiresQueryOptions(status),
   );
   const [selectedFireId, setSelectedFireId] = useState<string | null>(null);
   const [filters, setFilters] = useState(FIRE_FILTERS_DEFAULT);
@@ -28,7 +30,7 @@ export function AppShell() {
 
   const bustCacheAndRefresh = () => {
     void queryClient.invalidateQueries({
-      queryKey: wildfiresQueryKey('open'),
+      queryKey: wildfiresQueryKey(status),
     });
   };
 
@@ -56,6 +58,8 @@ export function AppShell() {
         fires={visibleFires}
         selectedFireId={selectedFireId}
         onSelectFire={onSelectFire}
+        status={status}
+        onStatusChange={setStatus}
       />
       <div className="flex min-w-0 flex-1 flex-col">
         {isError && data && (
@@ -85,6 +89,7 @@ export function AppShell() {
           )}
         </div>
         <BurnTicker
+          key={status}
           fires={visibleFires}
           dataUpdatedAt={dataUpdatedAt > 0 ? dataUpdatedAt : null}
         />

@@ -87,7 +87,8 @@ export function MapSurface({
         </output>
       )}
       <p className="text-faint absolute bottom-2 left-2 z-10 font-mono text-[11px]">
-        orange flame = active wildfire; size and status in the ledger/ticker
+        orange flame = active wildfire; muted flame = closed fire; size and
+        status in the ledger/ticker
       </p>
     </main>
   );

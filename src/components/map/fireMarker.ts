@@ -19,6 +19,9 @@ export function buildFireMarkerButton(
   button.type = 'button';
   button.tabIndex = 0;
   button.classList.add('fire-marker');
+  if (fire.closed !== null) {
+    button.classList.add('fire-marker--closed');
+  }
   if (selected) {
     button.classList.add('fire-marker--selected');
   }

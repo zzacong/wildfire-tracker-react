@@ -42,6 +42,61 @@ describe('BurnTicker', () => {
     expect(region).toHaveAttribute('aria-atomic', 'true');
   });
 
+  it('shows a single count under Open with no closed split', () => {
+    render(<BurnTicker fires={[fire(), fire()]} />);
+
+    expect(screen.getByText('Active fires')).toBeInTheDocument();
+    expect(screen.getByText('2')).toBeInTheDocument();
+    expect(screen.queryByText('Closed fires')).not.toBeInTheDocument();
+  });
+
+  it('splits active and closed aggregates when closed fires are present', () => {
+    render(
+      <BurnTicker
+        fires={[
+          fire(),
+          fire({ id: 'EONET_2' }),
+          fire({ id: 'EONET_3', closed: '2026-08-10T00:00:00Z' }),
+        ]}
+      />,
+    );
+
+    expect(screen.getByText('Active fires')).toBeInTheDocument();
+    expect(screen.getByText('Closed fires')).toBeInTheDocument();
+    expect(screen.getByText('2')).toBeInTheDocument();
+    expect(screen.getByText('1')).toBeInTheDocument();
+  });
+
+  it('announces the active/closed split on a poll-driven aggregate change', () => {
+    const rendered = render(
+      <BurnTicker
+        fires={[
+          fire(),
+          fire({ id: 'EONET_2' }),
+          fire({ id: 'EONET_3', closed: '2026-08-10T00:00:00Z' }),
+        ]}
+        dataUpdatedAt={T0}
+      />,
+    );
+
+    expect(screen.getByRole('status')).toHaveTextContent('');
+
+    rendered.rerender(
+      <BurnTicker
+        fires={[
+          fire({ id: 'EONET_2' }),
+          fire({ id: 'EONET_3', closed: '2026-08-10T00:00:00Z' }),
+          fire({ id: 'EONET_4', closed: '2026-08-11T00:00:00Z' }),
+        ]}
+        dataUpdatedAt={T1}
+      />,
+    );
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Active fires: 1, Closed fires: 2',
+    );
+  });
+
   it('announces only on a poll-driven aggregate change, not a filter-driven one', () => {
     const rendered = render(
       <BurnTicker fires={[fire(), fire()]} dataUpdatedAt={T0} />,

@@ -7,9 +7,16 @@ export interface BurnTickerProps {
   dataUpdatedAt?: number | null;
 }
 
+function splitActiveClosed(fires: Fire[]): { active: number; closed: number } {
+  const closed = fires.filter((fire) => fire.closed !== null).length;
+  return { active: fires.length - closed, closed };
+}
+
 export function BurnTicker({ fires, dataUpdatedAt = null }: BurnTickerProps) {
-  const count = fires.length;
-  const lastSeenRef = useRef({ dataUpdatedAt, count });
+  const { active, closed } = splitActiveClosed(fires);
+  const showSplit = closed > 0;
+  const signature = `${active}|${closed}`;
+  const lastSeenRef = useRef({ dataUpdatedAt, signature });
   const [announcement, setAnnouncement] = useState('');
 
   useEffect(() => {
@@ -18,17 +25,21 @@ export function BurnTicker({ fires, dataUpdatedAt = null }: BurnTickerProps) {
       return;
     }
     if (last.dataUpdatedAt === null) {
-      lastSeenRef.current = { dataUpdatedAt, count };
+      lastSeenRef.current = { dataUpdatedAt, signature };
       return;
     }
     if (dataUpdatedAt === last.dataUpdatedAt) {
       return;
     }
-    lastSeenRef.current = { dataUpdatedAt, count };
-    if (count !== last.count) {
-      setAnnouncement(`Active fires: ${count}`);
+    lastSeenRef.current = { dataUpdatedAt, signature };
+    if (signature !== last.signature) {
+      setAnnouncement(
+        showSplit
+          ? `Active fires: ${active}, Closed fires: ${closed}`
+          : `Active fires: ${active}`,
+      );
     }
-  }, [count, dataUpdatedAt]);
+  }, [active, closed, dataUpdatedAt, showSplit, signature]);
 
   return (
     <footer
@@ -40,9 +51,19 @@ export function BurnTicker({ fires, dataUpdatedAt = null }: BurnTickerProps) {
           Active fires
         </span>
         <span className="text-bone font-mono text-[20px] leading-none font-medium">
-          {count}
+          {active}
         </span>
       </div>
+      {showSplit && (
+        <div className="border-hairline flex flex-col justify-center border-l px-[18px]">
+          <span className="text-faint font-mono text-[10px] tracking-[0.2em] uppercase">
+            Closed fires
+          </span>
+          <span className="text-muted font-mono text-[20px] leading-none font-medium">
+            {closed}
+          </span>
+        </div>
+      )}
       <output aria-live="polite" aria-atomic="true" className="sr-only">
         {announcement}
       </output>

@@ -53,6 +53,8 @@ function LedgerRailFixture({
         setSelectedFireId((current) => (current === id ? null : id));
         onSelectFire?.(id);
       }}
+      status="open"
+      onStatusChange={() => {}}
     />
   );
 }
@@ -70,6 +72,8 @@ function renderLedgerRail(
       fires={fires}
       selectedFireId={selectedFireId}
       onSelectFire={onSelectFire}
+      status="open"
+      onStatusChange={() => {}}
     />,
   );
 }
@@ -158,11 +162,29 @@ describe('LedgerRail', () => {
     expect(row).toHaveAttribute('aria-pressed', 'false');
   });
 
-  it('shows an Open status chip on every row', () => {
+  it('shows an Open status chip on every open row', () => {
     const ashland = fire({ id: 'EONET_A', title: 'Ashland Inferno' });
     const lazyCreek = fire({ id: 'EONET_B', title: 'Lazy Creek Fire' });
     renderLedgerRail([ashland, lazyCreek], null, () => {});
 
     expect(screen.getAllByText('Open')).toHaveLength(2);
+  });
+
+  it('shows a Closed status chip on closed rows', () => {
+    const ashland = fire({ id: 'EONET_A', title: 'Ashland Inferno' });
+    const burnedOut = fire({
+      id: 'EONET_B',
+      title: 'Lazy Creek Fire',
+      closed: '2026-08-10T00:00:00Z',
+    });
+    renderLedgerRail([ashland, burnedOut], null, () => {});
+
+    expect(screen.getAllByText('Open')).toHaveLength(1);
+    expect(screen.getByText('Closed')).toBeInTheDocument();
+    const closedRow = screen.getByRole('button', {
+      name: 'Lazy Creek Fire, 924 acres',
+    });
+    expect(within(closedRow).getByText('Closed')).toBeInTheDocument();
+    expect(within(closedRow).queryByText('Open')).not.toBeInTheDocument();
   });
 });
