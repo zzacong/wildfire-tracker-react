@@ -86,12 +86,6 @@ export function FilterBar({ filters, onChange }: FilterBarProps) {
           </option>
         ))}
       </select>
-      <span
-        aria-label="Active filter count"
-        className="text-muted font-mono text-[11px]"
-      >
-        {activeCount} active
-      </span>
       {activeCount > 0 && (
         <button
           type="button"

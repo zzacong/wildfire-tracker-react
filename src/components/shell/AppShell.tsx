@@ -3,7 +3,11 @@ import { useMemo, useState } from 'react';
 
 import { MapSurface } from '#/components/map/MapSurface';
 import type { WildfireStatus } from '#/lib/eonet';
-import { FIRE_FILTERS_DEFAULT, selectVisibleFires } from '#/lib/fire-filters';
+import {
+  FIRE_FILTERS_DEFAULT,
+  activeFilterCount,
+  selectVisibleFires,
+} from '#/lib/fire-filters';
 import { useNow } from '#/lib/use-now';
 import { wildfiresQueryKey, wildfiresQueryOptions } from '#/lib/wildfires';
 
@@ -60,6 +64,7 @@ export function AppShell() {
         onSelectFire={onSelectFire}
         status={status}
         onStatusChange={setStatus}
+        activeFilterCount={activeFilterCount(filters)}
       />
       <div className="flex min-w-0 flex-1 flex-col">
         {isError && data && (

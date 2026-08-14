@@ -65,19 +65,24 @@ describe('FilterBar', () => {
     ).toEqual(['Any', '>100 acres', '>1k acres', '>10k acres']);
   });
 
-  it('reports the active-filter count always, even at zero', () => {
-    renderFilterBar({ recency: 'any', magnitude: 'any', search: '' }, () => {});
-
-    expect(screen.getByText('0 active')).toBeInTheDocument();
-  });
-
-  it('counts only non-default dimensions as active', () => {
+  it('leaves the active-filter count to the masthead', () => {
     renderFilterBar(
       { recency: '7d', magnitude: '>1k', search: 'ashland' },
       () => {},
     );
 
-    expect(screen.getByText('3 active')).toBeInTheDocument();
+    expect(screen.queryByText(/active$/)).not.toBeInTheDocument();
+  });
+
+  it('shows Clear filters only while a filter is active', () => {
+    renderFilterBar(
+      { recency: '7d', magnitude: '>1k', search: 'ashland' },
+      () => {},
+    );
+
+    expect(
+      screen.getByRole('button', { name: /clear all filters/i }),
+    ).toBeInTheDocument();
   });
 
   it('calls onChange with the new recency value', async () => {
@@ -166,7 +171,6 @@ describe('FilterBar', () => {
     expect(
       screen.queryByRole('button', { name: /clear search/i }),
     ).not.toBeInTheDocument();
-    expect(screen.getByText('0 active')).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: /clear all filters/i }),
     ).not.toBeInTheDocument();

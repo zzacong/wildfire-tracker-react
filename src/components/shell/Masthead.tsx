@@ -10,6 +10,7 @@ export interface MastheadProps {
   onRefresh: () => void;
   status: WildfireStatus;
   onStatusChange: (status: WildfireStatus) => void;
+  activeFilterCount: number;
 }
 
 export const STATUS_OPTIONS: WildfireStatus[] = ['open', 'all'];
@@ -20,6 +21,7 @@ export function Masthead({
   onRefresh,
   status,
   onStatusChange,
+  activeFilterCount,
 }: MastheadProps) {
   return (
     <header className="border-hairline border-b px-6 pt-[26px] pb-[18px]">
@@ -71,7 +73,13 @@ export function Masthead({
             <FreshnessReadout updatedAt={updatedAt} />
           </>
         )}
-        <span className="ml-auto flex items-center gap-1">
+        <span className="ml-auto flex items-center gap-2.5">
+          <span
+            aria-label="Active filter count"
+            className="font-mono text-[10px] font-medium tracking-[0.12em] uppercase"
+          >
+            {activeFilterCount} active
+          </span>
           {isRefreshing && (
             <span
               aria-hidden="true"

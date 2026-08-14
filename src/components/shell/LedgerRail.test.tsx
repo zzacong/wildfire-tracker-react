@@ -55,6 +55,7 @@ function LedgerRailFixture({
       }}
       status="open"
       onStatusChange={() => {}}
+      activeFilterCount={0}
     />
   );
 }
@@ -74,6 +75,7 @@ function renderLedgerRail(
       onSelectFire={onSelectFire}
       status="open"
       onStatusChange={() => {}}
+      activeFilterCount={0}
     />,
   );
 }

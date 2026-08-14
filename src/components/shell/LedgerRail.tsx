@@ -15,6 +15,7 @@ export interface LedgerRailProps {
   onSelectFire: (id: string) => void;
   status: WildfireStatus;
   onStatusChange: (status: WildfireStatus) => void;
+  activeFilterCount: number;
 }
 
 function sourceName(fire: Fire): string {
@@ -30,6 +31,7 @@ export function LedgerRail({
   onSelectFire,
   status,
   onStatusChange,
+  activeFilterCount,
 }: LedgerRailProps) {
   const now = useNow();
 
@@ -44,6 +46,7 @@ export function LedgerRail({
         onRefresh={onRefresh}
         status={status}
         onStatusChange={onStatusChange}
+        activeFilterCount={activeFilterCount}
       />
       <div
         aria-label="Ledger entries"

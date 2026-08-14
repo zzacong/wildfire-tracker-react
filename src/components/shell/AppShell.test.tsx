@@ -540,6 +540,94 @@ describe('AppShell', () => {
     });
   });
 
+  describe('full v1 flow', () => {
+    it('drives the assembled shell end-to-end in one render', async () => {
+      const user = userEvent.setup();
+      const largeOpen = fire({
+        id: 'EONET_OPEN',
+        title: 'Lost Lake Fire',
+        geometry: {
+          ...fire().geometry,
+          magnitudeValue: 20000,
+          date: '2026-08-13T10:00:00Z',
+        },
+      });
+      const smallClosed = fire({
+        id: 'EONET_CLOSED',
+        title: 'Ticker Creek Fire',
+        geometry: {
+          ...fire().geometry,
+          magnitudeValue: 50,
+          date: '2026-08-13T10:00:00Z',
+        },
+        closed: '2026-08-10T00:00:00Z',
+      });
+
+      const queryClient = seedQueryClient({ staleTime: Infinity });
+      queryClient.setQueryData(wildfiresQueryKey('open'), result(), {
+        updatedAt: Date.now(),
+      });
+      queryClient.setQueryData(
+        wildfiresQueryKey('all'),
+        result({ status: 'all', fires: [largeOpen, smallClosed] }),
+        { updatedAt: Date.now() - 5 * 60 * 1000 },
+      );
+      renderAppShell(queryClient);
+
+      expect(screen.getByText('0 active')).toBeInTheDocument();
+
+      await user.click(screen.getByRole('radio', { name: 'all' }));
+
+      await waitFor(() =>
+        expect(mapFiresMock).toHaveBeenLastCalledWith([largeOpen, smallClosed]),
+      );
+      expect(screen.getByText('Closed fires')).toBeInTheDocument();
+      expect(screen.getByText('Updated 5m ago')).toBeInTheDocument();
+
+      await user.selectOptions(
+        screen.getByRole('combobox', { name: /magnitude/i }),
+        '>1k',
+      );
+
+      await waitFor(() =>
+        expect(mapFiresMock).toHaveBeenLastCalledWith([largeOpen]),
+      );
+      expect(screen.getByText('1 active')).toBeInTheDocument();
+      expect(screen.queryByText('Ticker Creek Fire')).not.toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Lost Lake Fire, 20,000 acres',
+        }),
+      );
+
+      const dialog = screen.getByRole('dialog');
+      expect(dialog).toHaveAccessibleName('Lost Lake Fire');
+      expect(screen.getByText('Active fires')).toBeInTheDocument();
+
+      await user.keyboard('{Escape}');
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+      vi.stubGlobal(
+        'fetch',
+        vi
+          .fn()
+          .mockResolvedValue(
+            Response.json(
+              result({ status: 'all', fires: [largeOpen, smallClosed] }),
+            ),
+          ),
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Refresh now' }));
+
+      expect(await screen.findByText('Updated just now')).toBeInTheDocument();
+      expect(screen.getByText('1 active')).toBeInTheDocument();
+      expect(screen.getByText('Active fires')).toBeInTheDocument();
+    });
+  });
+
   describe('detail panel wiring', () => {
     it('opens the detail panel when a fire is selected and restores focus on Escape', async () => {
       const user = userEvent.setup();
