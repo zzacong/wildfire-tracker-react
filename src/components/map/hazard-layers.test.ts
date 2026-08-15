@@ -47,6 +47,16 @@ describe("buildEventsFeatureCollection", () => {
     expect((first.properties as HazardFeatureProperties).areaAcres).toBe(0);
     expect((collection.features[1].properties as HazardFeatureProperties).areaAcres).toBe(1200);
   });
+
+  it("skips events with invalid or out-of-range coordinates", () => {
+    const collection = buildEventsFeatureCollection([
+      event("bad-lat", -120.5, 200),
+      event("bad-lon", 189, 7),
+      event("nan", Number.NaN, 40.2),
+    ]);
+
+    expect(collection.features).toHaveLength(0);
+  });
 });
 
 describe("buildHazardSources", () => {

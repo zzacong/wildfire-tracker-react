@@ -69,6 +69,11 @@ export function AccessibleMarkers({
 
       const handles = new Map<string, MarkerHandle>();
       for (const hazardEvent of events) {
+        const lon = hazardEvent.geometry.lon;
+        const lat = hazardEvent.geometry.lat;
+        if (!Number.isFinite(lon) || !Number.isFinite(lat)) continue;
+        if (lon < -180 || lon > 180 || lat < -90 || lat > 90) continue;
+
         const element = document.createElement("button");
         element.type = "button";
         element.className = MARKER_CLASSES;

@@ -62,20 +62,28 @@ export type HazardFeatureCollection = {
 export function buildEventsFeatureCollection(events: HazardEvent[]): HazardFeatureCollection {
   return {
     type: "FeatureCollection",
-    features: events.map((event) => ({
-      type: "Feature",
-      properties: {
-        id: event.id,
-        title: event.title,
-        kind: event.kind,
-        status: event.status,
-        areaAcres: event.area?.value ?? 0,
-      },
-      geometry: {
-        type: "Point",
-        coordinates: [event.geometry.lon, event.geometry.lat],
-      },
-    })),
+    features: events.flatMap((event) => {
+      const lon = event.geometry.lon;
+      const lat = event.geometry.lat;
+      if (!Number.isFinite(lon) || !Number.isFinite(lat)) return [];
+      if (lon < -180 || lon > 180 || lat < -90 || lat > 90) return [];
+      return [
+        {
+          type: "Feature",
+          properties: {
+            id: event.id,
+            title: event.title,
+            kind: event.kind,
+            status: event.status,
+            areaAcres: event.area?.value ?? 0,
+          },
+          geometry: {
+            type: "Point",
+            coordinates: [lon, lat],
+          },
+        },
+      ];
+    }),
   };
 }
 

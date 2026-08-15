@@ -140,7 +140,13 @@ function isPointGeometry(
     Array.isArray(geometry.coordinates) &&
     geometry.coordinates.length >= 2 &&
     typeof geometry.coordinates[0] === "number" &&
-    typeof geometry.coordinates[1] === "number"
+    typeof geometry.coordinates[1] === "number" &&
+    Number.isFinite(geometry.coordinates[0]) &&
+    Number.isFinite(geometry.coordinates[1]) &&
+    geometry.coordinates[0] >= -180 &&
+    geometry.coordinates[0] <= 180 &&
+    geometry.coordinates[1] >= -90 &&
+    geometry.coordinates[1] <= 90
   );
 }
 
