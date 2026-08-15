@@ -36,6 +36,16 @@ export const Route = createRootRoute({
     ],
   }),
   shellComponent: RootDocument,
+  notFoundComponent: () => (
+    <div className="flex h-dvh w-full items-center justify-center bg-background text-foreground">
+      <div className="text-center">
+        <p className="font-heading text-lg font-semibold tracking-tight">Page not found</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          The page you're looking for doesn't exist.
+        </p>
+      </div>
+    </div>
+  ),
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
