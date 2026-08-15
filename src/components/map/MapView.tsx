@@ -1,10 +1,9 @@
 "use client";
 
 import type { GeoJSONSource, Map as MapLibreMap, MapLayerMouseEvent } from "maplibre-gl";
-import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AccessibleMarkers } from "@/components/map/AccessibleMarkers";
 import {
@@ -62,8 +61,6 @@ export function MapView() {
     void import("maplibre-gl").then((maplibregl) => {
       const container = containerRef.current;
       if (disposed || !container) return;
-
-      maplibregl.setWorkerUrl(maplibreWorkerUrl);
 
       map = new maplibregl.Map({
         container,
