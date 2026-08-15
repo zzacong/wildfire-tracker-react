@@ -181,7 +181,7 @@ export function normalizeEvent(raw: RawEonetEvent): HazardEvent | null {
     status: deriveStatus(raw.closed),
     geometry,
     area,
-    dates: { start, closed: raw.closed ?? null },
+    dates: { start, closed: raw.closed || null },
     description: raw.description ?? null,
     sources: raw.sources ?? [],
     link: raw.link,
