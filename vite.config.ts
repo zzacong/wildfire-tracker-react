@@ -10,6 +10,7 @@ import tailwindcss from "@tailwindcss/vite";
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [devtools(), tailwindcss(), tanstackStart(), nitro(), viteReact()],
+  optimizeDeps: { exclude: ["maplibre-gl"] },
 });
 
 export default config;

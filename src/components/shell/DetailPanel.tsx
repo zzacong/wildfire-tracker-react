@@ -171,6 +171,7 @@ function EventDetail({ event, onClose }: { event: HazardEvent; onClose: () => vo
             </div>
             <Button
               render={<a href={event.link} target="_blank" rel="noopener noreferrer" />}
+              nativeButton={false}
               variant="outline"
               className="w-full"
             >
