@@ -25,6 +25,7 @@ export function formatStartDate(iso: string): string {
     month: "short",
     day: "numeric",
     year: "2-digit",
+    timeZone: "UTC",
   }).format(date);
 }
 
