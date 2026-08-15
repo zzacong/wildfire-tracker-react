@@ -1,5 +1,18 @@
 {
-  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.formatOnSave": false,
+  "editor.codeActionsOnSave": {
+    "source.format.oxc": "always",
+    "source.fixAll.oxc": "always"
+  },
+  "oxc.fmt.configPath": ".oxfmtrc.json",
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "tailwindCSS.experimental.configFile": "src/styles.css",
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
   "files.watcherExclude": {
     "**/routeTree.gen.ts": true
   },
