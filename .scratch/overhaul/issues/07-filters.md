@@ -1,7 +1,11 @@
 # 07 - Filters: status, kind, date range
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 02
+
+## Answer
+
+Filter bar (`src/components/shell/FilterBar.tsx`) with status (open-only default vs include recently closed 30 days), kind seam (only Wildfire wired), date range; feeds EONET `start`/`end`/status via search params + `loaderDeps`. Filter helpers in `src/lib/hazard-filters.ts` + tests. Committed as `feat(filters): add status, kind, and date-range filters` (squash-merged).
 Skills: load `/design-taste-frontend` and `/impeccable` before building any UI for this ticket.
 
 - Status filter: **open only** (default) vs include **recently closed (last 30 days)**.
