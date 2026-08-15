@@ -8,13 +8,13 @@ const TTL_MS = 15 * 60 * 1000;
 
 type FetchMock = ReturnType<typeof vi.fn>;
 
-function rawEvent(id: number, start: string): RawEonetEvent {
+function rawEvent(id: number, start: string, closed: string | null = null): RawEonetEvent {
   return {
     id: `EONET_${id}`,
     title: `Fire ${id}`,
     description: null,
     link: `https://eonet.gsfc.nasa.gov/api/v3/events/EONET_${id}`,
-    closed: null,
+    closed,
     categories: [{ id: "wildfires", title: "Wildfires" }],
     sources: [{ id: "IRWIN", url: "https://example.com/irwin" }],
     geometry: [
@@ -154,5 +154,53 @@ describe("getHazardEventsResult", () => {
     expect(fresh.status).toBe("fresh");
     expect(fresh.isStale).toBe(false);
     expect(fresh.events[0].id).toBe("EONET_2");
+  });
+
+  it("queries open events by default and drops closed ones from the payload", async () => {
+    const open = rawEvent(1, "2026-08-13T12:00:00Z");
+    const closed = rawEvent(2, "2026-07-01T12:00:00Z", "2026-07-05T12:00:00Z");
+    const fetch = okFetch([open, closed]);
+    vi.stubGlobal("fetch", fetch);
+
+    const result = await getHazardEventsResult();
+
+    const url = fetch.mock.calls[0][0] as URL;
+    expect(url.searchParams.get("category")).toBe("wildfires");
+    expect(url.searchParams.get("status")).toBe("open");
+    expect(result.events.map((event) => event.id)).toEqual(["EONET_1"]);
+  });
+
+  it("keeps open events plus closed events within the last 30 days", async () => {
+    const open = rawEvent(1, "2026-08-13T12:00:00Z");
+    const recent = rawEvent(2, "2026-08-01T12:00:00Z", "2026-08-10T12:00:00Z");
+    const old = rawEvent(3, "2026-05-01T12:00:00Z", "2026-05-10T12:00:00Z");
+    vi.stubGlobal("fetch", okFetch([open, recent, old]));
+
+    const result = await getHazardEventsResult({ status: "recently-closed" });
+
+    expect(result.events.map((event) => event.id)).toEqual(["EONET_1", "EONET_2"]);
+  });
+
+  it("passes start and end dates to the EONET query", async () => {
+    const fetch = okFetch([rawEvent(1, "2026-08-01T12:00:00Z")]);
+    vi.stubGlobal("fetch", fetch);
+
+    await getHazardEventsResult({ start: "2026-08-01", end: "2026-08-14" });
+
+    const url = fetch.mock.calls[0][0] as URL;
+    expect(url.searchParams.get("start")).toBe("2026-08-01");
+    expect(url.searchParams.get("end")).toBe("2026-08-14");
+  });
+
+  it("caches each filter combination under its own key", async () => {
+    const fetch = okFetch([rawEvent(1, "2026-08-13T12:00:00Z")]);
+    vi.stubGlobal("fetch", fetch);
+
+    await getHazardEventsResult();
+    await getHazardEventsResult();
+    expect(fetch).toHaveBeenCalledTimes(1);
+
+    await getHazardEventsResult({ status: "recently-closed" });
+    expect(fetch).toHaveBeenCalledTimes(2);
   });
 });
