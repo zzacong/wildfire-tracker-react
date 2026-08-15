@@ -21,7 +21,7 @@ function rawEvent(id: number, start: string, closed: string | null = null): RawE
       {
         date: start,
         type: "Point",
-        coordinates: [-120.5 + id, 40.2],
+        coordinates: [-120.5 + (id % 240), 40.2],
         magnitudeValue: 100 + id,
         magnitudeUnit: "acres",
       },

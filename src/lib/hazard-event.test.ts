@@ -307,6 +307,61 @@ describe("normalizeEvent", () => {
     ).toBeNull();
   });
 
+  it("drops events whose point coordinates fall outside valid lat/lon ranges", () => {
+    expect(
+      normalizeEvent(
+        rawEvent({
+          geometry: [
+            {
+              date: "2026-08-01T12:00:00Z",
+              type: "Point",
+              coordinates: [14, 200],
+            },
+          ],
+        }),
+      ),
+    ).toBeNull();
+    expect(
+      normalizeEvent(
+        rawEvent({
+          geometry: [
+            {
+              date: "2026-08-01T12:00:00Z",
+              type: "Point",
+              coordinates: [189, 7],
+            },
+          ],
+        }),
+      ),
+    ).toBeNull();
+    expect(
+      normalizeEvent(
+        rawEvent({
+          geometry: [
+            {
+              date: "2026-08-01T12:00:00Z",
+              type: "Point",
+              coordinates: [-120.5, Number.NaN],
+            },
+          ],
+        }),
+      ),
+    ).toBeNull();
+    expect(
+      normalizeEvent(
+        rawEvent({
+          geometry: [
+            {
+              date: "2026-08-01T12:00:00Z",
+              type: "Point",
+              coordinates: [-120.5, Number.POSITIVE_INFINITY],
+            },
+          ],
+        }),
+      ),
+    ).toBeNull();
+  });
+
   it("leaves area null when no geometry carries a magnitude", () => {
     const event = normalizeEvent(
       rawEvent({
