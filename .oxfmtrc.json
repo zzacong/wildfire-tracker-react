@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": [".scratch/**", "docs/**", "AGENTS.md", "CONTEXT.md", "src/routeTree.gen.ts"],
+  "sortImports": true,
+  "sortTailwindcss": {
+    "stylesheet": "src/styles.css",
+    "functions": ["clsx", "cn", "cva"]
+  }
+}
