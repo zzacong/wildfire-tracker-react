@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { FlameIcon, ListIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { MapView } from "@/components/map/MapView";
 import { BottomSheet } from "@/components/shell/BottomSheet";
@@ -71,7 +71,7 @@ function Shell() {
         </div>
 
         <div className="pointer-events-auto absolute inset-x-3 top-16 z-20 flex justify-center md:hidden">
-          <div className="max-w-full overflow-x-auto [scrollbar-width:none]">
+          <div className="max-w-full [scrollbar-width:none] overflow-x-auto">
             <FilterBar />
           </div>
         </div>
@@ -121,7 +121,7 @@ function Shell() {
 
 function Brand() {
   return (
-    <div className="glass flex items-center gap-3 rounded-2xl border border-border px-3.5 py-2.5 shadow-lg shadow-black/30">
+    <div className="flex items-center gap-3 rounded-2xl border border-border glass px-3.5 py-2.5 shadow-lg shadow-black/30">
       <div className="grid size-8 place-items-center rounded-xl bg-primary/15 ring-1 ring-primary/30">
         <FlameIcon className="size-4 text-primary" strokeWidth={1.75} aria-hidden />
       </div>

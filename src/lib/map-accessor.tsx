@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useRef, type ReactNode } from "react";
 import type { Map as MapLibreMap, PaddingOptions } from "maplibre-gl";
+import { createContext, useCallback, useContext, useMemo, useRef, type ReactNode } from "react";
 
 export interface FlyToOptions {
   zoom?: number;

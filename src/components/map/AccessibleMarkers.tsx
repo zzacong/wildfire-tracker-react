@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import type { Map as MapLibreMap, Marker as MapLibreMarker } from "maplibre-gl";
+import { useEffect, useRef } from "react";
+
+import { HAZARD_EVENTS_SOURCE_ID } from "@/components/map/hazard-layers";
 import type { HazardEvent } from "@/lib/hazard-event";
 import { useMapAccessor } from "@/lib/map-accessor";
-import { HAZARD_EVENTS_SOURCE_ID } from "@/components/map/hazard-layers";
 
 interface AccessibleMarkersProps {
   events: HazardEvent[];

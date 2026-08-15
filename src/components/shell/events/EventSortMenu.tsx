@@ -1,7 +1,7 @@
 "use client";
 
-import { useId } from "react";
 import { ArrowUpDownIcon, CheckIcon } from "lucide-react";
+import { useId } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -74,7 +74,7 @@ export function EventSortMenu({ sort, onSortChange }: EventSortMenuProps) {
                   className="sr-only"
                 />
                 <span className="flex items-baseline gap-1.5">
-                  <span className="font-mono text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                  <span className="font-mono text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
                     {option.keyLabel}
                   </span>
                   <span>{option.directionLabel}</span>

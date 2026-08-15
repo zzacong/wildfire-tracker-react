@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { ExternalLinkIcon, FlameIcon, XIcon } from "lucide-react";
+import { useEffect, useRef } from "react";
 
+import { BottomSheet } from "@/components/shell/BottomSheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BottomSheet } from "@/components/shell/BottomSheet";
 import type { Area, EventStatus, HazardEvent, Source } from "@/lib/hazard-event";
 import { useSelection } from "@/lib/selection";
 import { cn } from "@/lib/utils";
@@ -102,7 +102,7 @@ function DesktopDetailPanel({
       inert={!isOpen}
       tabIndex={isOpen ? -1 : undefined}
       className={cn(
-        "glass pointer-events-auto absolute top-4 right-4 bottom-4 hidden w-[min(360px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border shadow-lg shadow-black/40 transition-transform duration-300 ease-out motion-reduce:transition-none md:flex",
+        "pointer-events-auto absolute top-4 right-4 bottom-4 hidden w-[min(360px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border glass shadow-lg shadow-black/40 transition-transform duration-300 ease-out motion-reduce:transition-none md:flex",
         isOpen ? "translate-x-0" : "translate-x-[calc(100%+1rem)]",
       )}
     >
@@ -132,7 +132,7 @@ function EventDetail({ event, onClose }: { event: HazardEvent; onClose: () => vo
           <StatusBadge status={event.status} />
         </div>
 
-        <h2 className="mt-2 pr-10 font-heading text-base leading-snug font-semibold tracking-tight text-foreground line-clamp-2">
+        <h2 className="mt-2 line-clamp-2 pr-10 font-heading text-base leading-snug font-semibold tracking-tight text-foreground">
           {event.title}
         </h2>
       </header>

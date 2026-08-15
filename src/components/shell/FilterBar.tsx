@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import {
   ActivityIcon,
@@ -17,6 +16,7 @@ import {
   WavesIcon,
   type LucideIcon,
 } from "lucide-react";
+import { useState } from "react";
 
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -117,7 +117,7 @@ export function FilterBar() {
   return (
     <div
       data-slot="filter-bar"
-      className="glass inline-flex items-center gap-1 rounded-2xl border border-border p-1.5 shadow-lg shadow-black/30"
+      className="inline-flex items-center gap-1 rounded-2xl border border-border glass p-1.5 shadow-lg shadow-black/30"
     >
       <div className="hidden items-center gap-3 px-2 xl:flex">
         <LegendItem label="Open" dotClassName="bg-primary" />
@@ -199,7 +199,7 @@ export function FilterBar() {
                     setOpen(null);
                   }}
                   className={cn(
-                    "flex items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-left text-sm text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                    "flex items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-left text-sm text-foreground transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
                     disabled && "cursor-not-allowed text-muted-foreground/60 hover:bg-transparent",
                   )}
                 >
@@ -261,7 +261,7 @@ export function FilterBar() {
             <button
               type="button"
               onClick={() => setSearch({ start: undefined, end: undefined })}
-              className="flex items-center justify-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="flex items-center justify-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
             >
               Clear dates
             </button>

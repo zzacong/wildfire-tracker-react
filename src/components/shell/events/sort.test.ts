@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { DEFAULT_SORT, compareEvents, sortEvents, type EventSort } from "./sort";
 import type { HazardEvent } from "@/lib/hazard-event";
+
+import { DEFAULT_SORT, compareEvents, sortEvents, type EventSort } from "./sort";
 
 function event(id: string, start: string, area: number | null = null): HazardEvent {
   return {
