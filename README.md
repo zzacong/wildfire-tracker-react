@@ -17,6 +17,19 @@ To build this application for production:
 pnpm build
 ```
 
+# Code Quality
+
+Linting and formatting are handled by the Oxc tools — **oxlint** for linting and **oxfmt** for formatting.
+
+- `pnpm lint` — runs `oxlint` (config in `.oxlintrc.json`, React/TS plugins enabled).
+- `pnpm fmt` — formats all files with `oxfmt` (config in `.oxfmtrc.json`, includes import + Tailwind class sorting).
+- `pnpm fmt:check` — verifies formatting without writing.
+- `pnpm typecheck` — runs `tsc --noEmit`.
+- `pnpm test` — runs the Vitest suite.
+- `pnpm check` — runs lint, format check, typecheck, and tests in one command. Run this before pushing.
+
+Both tools auto-discover their config files and honor `.gitignore`; ignore patterns live in `.oxfmtrc.json` (`ignorePatterns`).
+
 # Deployment (Vercel)
 
 Hosting is **Vercel**, deployed via the [Nitro](https://nitro.build/) Vite plugin (`nitro` in `vite.config.ts`). No environment secrets are required — EONET and OpenFreeMap are keyless. `vercel.json` pins the framework preset so Vercel always builds it as a TanStack Start app.
