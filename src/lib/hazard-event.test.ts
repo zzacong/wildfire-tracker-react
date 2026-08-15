@@ -64,6 +64,10 @@ describe("deriveStatus", () => {
   it("treats a close date as closed", () => {
     expect(deriveStatus("2026-08-05T18:00:00Z")).toBe("closed");
   });
+
+  it("treats an empty-string close date as open", () => {
+    expect(deriveStatus("")).toBe("open");
+  });
 });
 
 describe("normalizeArea", () => {
@@ -86,8 +90,25 @@ describe("normalizeArea", () => {
 
   it("returns null when magnitude is missing or not a positive number", () => {
     expect(normalizeArea(undefined, "acres")).toBeNull();
+    expect(normalizeArea(null, "acres")).toBeNull();
     expect(normalizeArea(0, "acres")).toBeNull();
     expect(normalizeArea(-5, "acres")).toBeNull();
+  });
+
+  it("returns null for non-finite magnitudes", () => {
+    expect(normalizeArea(Number.POSITIVE_INFINITY, "acres")).toBeNull();
+    expect(normalizeArea(Number.NaN, "acres")).toBeNull();
+  });
+
+  it("returns null for unknown, empty, or missing units", () => {
+    expect(normalizeArea(35, "km2")).toBeNull();
+    expect(normalizeArea(35, "")).toBeNull();
+    expect(normalizeArea(35, undefined)).toBeNull();
+    expect(normalizeArea(35, null)).toBeNull();
+  });
+
+  it("converts 100 hectares to the documented 247.105 acres", () => {
+    expect(normalizeArea(100, "hectares")?.value).toBeCloseTo(247.105);
   });
 });
 
@@ -137,6 +158,12 @@ describe("normalizeEvent", () => {
     const event = normalizeEvent(rawEvent({ closed: "2026-08-05T18:00:00Z" }));
     expect(event?.status).toBe("closed");
     expect(event?.dates.closed).toBe("2026-08-05T18:00:00Z");
+  });
+
+  it("treats an empty-string close date as open with no close date", () => {
+    const event = normalizeEvent(rawEvent({ closed: "" }));
+    expect(event?.status).toBe("open");
+    expect(event?.dates.closed).toBeNull();
   });
 
   it("maps the first category to a Kind", () => {
@@ -236,6 +263,82 @@ describe("normalizeEvent", () => {
     expect(normalizeEvent(rawEvent({ geometry: [] }))).toBeNull();
   });
 
+  it("keeps a 3-element point coordinate as lon/lat", () => {
+    const event = normalizeEvent(
+      rawEvent({
+        geometry: [
+          {
+            date: "2026-08-01T12:00:00Z",
+            type: "Point",
+            coordinates: [-120.5, 40.2, 1200],
+          },
+        ],
+      }),
+    );
+    expect(event?.geometry).toEqual({ lon: -120.5, lat: 40.2 });
+  });
+
+  it("drops events whose point coordinates are not numeric", () => {
+    expect(
+      normalizeEvent(
+        rawEvent({
+          geometry: [
+            {
+              date: "2026-08-01T12:00:00Z",
+              type: "Point",
+              coordinates: ["-120.5", "40.2"],
+            },
+          ],
+        }),
+      ),
+    ).toBeNull();
+    expect(
+      normalizeEvent(
+        rawEvent({
+          geometry: [
+            {
+              date: "2026-08-01T12:00:00Z",
+              type: "Point",
+              coordinates: [-120.5],
+            },
+          ],
+        }),
+      ),
+    ).toBeNull();
+  });
+
+  it("leaves area null when no geometry carries a magnitude", () => {
+    const event = normalizeEvent(
+      rawEvent({
+        geometry: [
+          {
+            date: "2026-08-01T12:00:00Z",
+            type: "Point",
+            coordinates: [-120.5, 40.2],
+          },
+        ],
+      }),
+    );
+    expect(event?.area).toBeNull();
+  });
+
+  it("ignores magnitudes reported in non-area units", () => {
+    const event = normalizeEvent(
+      rawEvent({
+        geometry: [
+          {
+            date: "2026-08-01T12:00:00Z",
+            type: "Point",
+            coordinates: [-120.5, 40.2],
+            magnitudeValue: 35,
+            magnitudeUnit: "kts",
+          },
+        ],
+      }),
+    );
+    expect(event?.area).toBeNull();
+  });
+
   it("falls back to null description and empty sources", () => {
     const event = normalizeEvent(rawEvent({ description: null, sources: [] }));
     expect(event?.description).toBeNull();
@@ -263,12 +366,34 @@ describe("normalizeHazardEvents", () => {
     const events = normalizeHazardEvents(rawEvents);
     expect(events.map((event) => event.id)).toEqual(["EONET_1"]);
   });
+
+  it("returns an empty list for an empty payload", () => {
+    expect(normalizeHazardEvents([])).toEqual([]);
+  });
 });
 
 describe("capHazardEvents", () => {
   it("leaves events below the cap untouched", () => {
     const events = [hazardEvent("a"), hazardEvent("b")];
     expect(capHazardEvents(events, 5)).toBe(events);
+  });
+
+  it("leaves exactly-cap-sized lists untouched", () => {
+    const events = [hazardEvent("a"), hazardEvent("b")];
+    expect(capHazardEvents(events, 2)).toBe(events);
+  });
+
+  it("does not mutate the input when capping", () => {
+    const events = [
+      hazardEvent("a", "2026-01-01T00:00:00Z"),
+      hazardEvent("b", "2026-06-01T00:00:00Z"),
+      hazardEvent("c", "2026-08-01T00:00:00Z"),
+    ];
+    const before = [...events];
+
+    capHazardEvents(events, 2);
+
+    expect(events).toEqual(before);
   });
 
   it("drops the oldest events beyond the cap, keeping the newest", () => {

@@ -170,6 +170,17 @@ describe("getHazardEventsResult", () => {
     expect(result.events.map((event) => event.id)).toEqual(["EONET_1"]);
   });
 
+  it("drops events without a usable geometry from the payload", async () => {
+    const unusable = rawEvent(1, "2026-08-13T12:00:00Z");
+    unusable.geometry = [{ date: "2026-08-13T12:00:00Z", type: "Polygon", coordinates: [] }];
+    vi.stubGlobal("fetch", okFetch([unusable]));
+
+    const result = await getHazardEventsResult();
+
+    expect(result.status).toBe("fresh");
+    expect(result.events).toEqual([]);
+  });
+
   it("keeps open events plus closed events within the last 30 days", async () => {
     const open = rawEvent(1, "2026-08-13T12:00:00Z");
     const recent = rawEvent(2, "2026-08-01T12:00:00Z", "2026-08-10T12:00:00Z");
