@@ -6,6 +6,7 @@ import { ExternalLinkIcon, FlameIcon, XIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { BottomSheet } from "@/components/shell/BottomSheet";
 import type { Area, EventStatus, HazardEvent, Source } from "@/lib/hazard-event";
 import { useSelection } from "@/lib/selection";
 import { cn } from "@/lib/utils";
@@ -37,6 +38,34 @@ export function DetailPanel() {
 
   const displayEvent = event ?? lastEventRef.current;
 
+  return (
+    <>
+      <DesktopDetailPanel isOpen={isOpen} event={displayEvent} onClose={clearSelection} />
+
+      <BottomSheet open={isOpen} onClose={clearSelection} ariaLabel="Hazard event details">
+        {displayEvent ? (
+          <EventDetail event={displayEvent} onClose={clearSelection} />
+        ) : (
+          <EmptyDetail onClose={clearSelection} />
+        )}
+      </BottomSheet>
+    </>
+  );
+}
+
+/**
+ * Desktop variant (md and up): floating slide-over pinned to the right edge.
+ * Focus management, Escape-to-close and `inert` mirror the original panel.
+ */
+function DesktopDetailPanel({
+  isOpen,
+  event,
+  onClose,
+}: {
+  isOpen: boolean;
+  event: HazardEvent | null;
+  onClose: () => void;
+}) {
   const panelRef = useRef<HTMLElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
 
@@ -56,12 +85,12 @@ export function DetailPanel() {
     }
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        clearSelection();
+        onClose();
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isOpen, clearSelection]);
+  }, [isOpen, onClose]);
 
   return (
     <aside
@@ -73,15 +102,11 @@ export function DetailPanel() {
       inert={!isOpen}
       tabIndex={isOpen ? -1 : undefined}
       className={cn(
-        "glass pointer-events-auto flex h-full w-[min(360px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border shadow-lg shadow-black/40 transition-transform duration-300 ease-out motion-reduce:transition-none",
+        "glass pointer-events-auto absolute top-4 right-4 bottom-4 hidden w-[min(360px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border shadow-lg shadow-black/40 transition-transform duration-300 ease-out motion-reduce:transition-none md:flex",
         isOpen ? "translate-x-0" : "translate-x-[calc(100%+1rem)]",
       )}
     >
-      {displayEvent ? (
-        <EventDetail event={displayEvent} onClose={clearSelection} />
-      ) : (
-        <EmptyDetail onClose={clearSelection} />
-      )}
+      {event ? <EventDetail event={event} onClose={onClose} /> : <EmptyDetail onClose={onClose} />}
     </aside>
   );
 }

@@ -21,8 +21,8 @@ export function EventRow({ event, selected, onSelect }: EventRowProps) {
       onClick={onSelect}
       aria-pressed={selected}
       className={cn(
-        "group flex w-full items-start gap-2.5 px-3 py-2.5 text-left outline-none transition-colors",
-        "focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/60",
+        "group flex w-full items-start gap-2.5 px-3 py-2.5 text-left outline-none transition-colors motion-reduce:transition-none md:py-2.5",
+        "active:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/60",
         selected ? "bg-accent/30 ring-1 ring-inset ring-primary/30" : "hover:bg-muted/40",
       )}
     >
