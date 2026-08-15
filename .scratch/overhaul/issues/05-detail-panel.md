@@ -1,7 +1,11 @@
 # 05 - Rich detail panel
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 02, 03
+
+## Answer
+
+Rich slide-over detail panel (`src/components/shell/DetailPanel.tsx`): area (acres), status, start/close dates, description, source links + EONET link; close/Escape resets selection; keyboard accessible. Formatting helpers in `src/components/shell/detail/format.ts` + tests. Committed as `feat(detail): implement rich detail panel` (squash-merged).
 Skills: load `/design-taste-frontend` and `/impeccable` before building any UI for this ticket.
 
 Slide-over detail panel for a selected hazard event:
