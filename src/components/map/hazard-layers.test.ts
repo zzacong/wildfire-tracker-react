@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import type { HazardEvent } from "@/lib/hazard-event";
+
 import {
   DEFAULT_SYMBOL_FONT,
   EVENT_CLUSTER_MAX_ZOOM,
@@ -17,7 +19,6 @@ import {
   selectedEventFilter,
   type HazardFeatureProperties,
 } from "./hazard-layers";
-import type { HazardEvent } from "@/lib/hazard-event";
 
 function event(id: string, lon = -120.5, lat = 40.2): HazardEvent {
   return {

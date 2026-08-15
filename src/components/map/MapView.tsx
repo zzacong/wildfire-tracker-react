@@ -1,15 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
 import type { GeoJSONSource, Map as MapLibreMap, MapLayerMouseEvent } from "maplibre-gl";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import { Route } from "@/routes/index";
-import { useMapAccessor } from "@/lib/map-accessor";
-import { useSelection } from "@/lib/selection";
 import { AccessibleMarkers } from "@/components/map/AccessibleMarkers";
-import { HeatmapToggle } from "@/components/map/HeatmapToggle";
 import {
   DEFAULT_SYMBOL_FONT,
   HAZARD_CLUSTERS_LAYER_ID,
@@ -24,6 +20,10 @@ import {
   buildHazardSources,
   selectedEventFilter,
 } from "@/components/map/hazard-layers";
+import { HeatmapToggle } from "@/components/map/HeatmapToggle";
+import { useMapAccessor } from "@/lib/map-accessor";
+import { useSelection } from "@/lib/selection";
+import { Route } from "@/routes/index";
 
 const OPEN_FREEMAP_DARK_STYLE = "https://tiles.openfreemap.org/styles/dark";
 

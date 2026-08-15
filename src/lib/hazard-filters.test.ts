@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 
+import type { Kind } from "./hazard-event";
 import {
   DEFAULT_HAZARD_KIND,
   normalizeHazardFilters,
   parseHazardFiltersSearch,
   type StatusFilter,
 } from "./hazard-filters";
-import type { Kind } from "./hazard-event";
 
 describe("normalizeHazardFilters", () => {
   it("defaults to open-only wildfire when no input is given", () => {

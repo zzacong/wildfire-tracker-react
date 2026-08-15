@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { CloudOffIcon, HistoryIcon, RefreshCwIcon, XIcon } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -21,7 +21,7 @@ export function StaleBanner() {
   return (
     <div
       role="status"
-      className="glass pointer-events-auto flex max-w-full items-center gap-2 rounded-full border border-warning/30 py-1 pr-1 pl-3.5 shadow-lg shadow-black/30"
+      className="pointer-events-auto flex max-w-full items-center gap-2 rounded-full border border-warning/30 glass py-1 pr-1 pl-3.5 shadow-lg shadow-black/30"
     >
       <HistoryIcon className="size-3.5 shrink-0 text-warning" strokeWidth={1.75} aria-hidden />
       <p className="min-w-0 flex-1 truncate text-xs font-medium text-foreground">
@@ -58,7 +58,7 @@ export function ErrorOverlay() {
 
   return (
     <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/40 p-4 backdrop-blur-sm">
-      <div className="glass w-full max-w-sm rounded-2xl border border-border p-6 text-center shadow-xl shadow-black/40">
+      <div className="w-full max-w-sm rounded-2xl border border-border glass p-6 text-center shadow-xl shadow-black/40">
         <div className="mx-auto grid size-11 place-items-center rounded-xl bg-destructive/10 ring-1 ring-destructive/30">
           <CloudOffIcon className="size-5 text-destructive" strokeWidth={1.75} aria-hidden />
         </div>

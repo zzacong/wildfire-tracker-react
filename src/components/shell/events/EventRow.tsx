@@ -1,7 +1,7 @@
 "use client";
 
-import type { HazardEvent } from "@/lib/hazard-event";
 import { Badge } from "@/components/ui/badge";
+import type { HazardEvent } from "@/lib/hazard-event";
 import { cn } from "@/lib/utils";
 
 import { formatArea, formatStartDate, kindLabel } from "./format";
@@ -21,9 +21,9 @@ export function EventRow({ event, selected, onSelect }: EventRowProps) {
       onClick={onSelect}
       aria-pressed={selected}
       className={cn(
-        "group flex w-full items-start gap-2.5 px-3 py-2.5 text-left outline-none transition-colors motion-reduce:transition-none md:py-2.5",
-        "active:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/60",
-        selected ? "bg-accent/30 ring-1 ring-inset ring-primary/30" : "hover:bg-muted/40",
+        "group flex w-full items-start gap-2.5 px-3 py-2.5 text-left transition-colors outline-none motion-reduce:transition-none md:py-2.5",
+        "focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-inset active:bg-muted/50",
+        selected ? "bg-accent/30 ring-1 ring-primary/30 ring-inset" : "hover:bg-muted/40",
       )}
     >
       <span
@@ -41,7 +41,7 @@ export function EventRow({ event, selected, onSelect }: EventRowProps) {
         <span className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px] text-muted-foreground">
           <Badge
             variant="outline"
-            className="h-4 px-1.5 text-[10px] font-medium uppercase tracking-wider"
+            className="h-4 px-1.5 text-[10px] font-medium tracking-wider uppercase"
           >
             {kindLabel(event.kind)}
           </Badge>

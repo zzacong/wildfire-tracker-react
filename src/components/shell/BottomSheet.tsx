@@ -142,7 +142,7 @@ export function BottomSheet({ open, onClose, ariaLabel, children }: BottomSheetP
         inert={!open}
         tabIndex={open ? -1 : undefined}
         className={cn(
-          "glass pointer-events-auto fixed inset-x-0 bottom-0 z-70 flex max-h-[85dvh] flex-col overflow-hidden rounded-t-2xl border border-border border-b-0 pb-[env(safe-area-inset-bottom)]",
+          "pointer-events-auto fixed inset-x-0 bottom-0 z-70 flex max-h-[85dvh] flex-col overflow-hidden rounded-t-2xl border border-b-0 border-border glass pb-[env(safe-area-inset-bottom)]",
           "shadow-[0_-16px_48px_rgba(0,0,0,0.45)] transition-transform duration-300 ease-out motion-reduce:transition-none md:hidden",
           open ? "translate-y-0" : "translate-y-full",
         )}

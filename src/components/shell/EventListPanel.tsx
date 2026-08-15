@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { useNavigate, useRouter, useSearch } from "@tanstack/react-router";
 import { CloudOffIcon, MapPinOffIcon, RefreshCwIcon, SearchXIcon, XIcon } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import { EventRow } from "@/components/shell/events/EventRow";
 import { EventSortMenu } from "@/components/shell/events/EventSortMenu";
@@ -81,7 +81,7 @@ export function EventListPanel({ embedded = false, onClose }: EventListPanelProp
       aria-label="Hazard events"
       className={cn(
         "flex h-full flex-col overflow-hidden",
-        !embedded && "glass rounded-2xl border border-border shadow-lg shadow-black/30",
+        !embedded && "rounded-2xl border border-border glass shadow-lg shadow-black/30",
       )}
     >
       <header className="flex items-center justify-between gap-3 border-b border-border/70 px-4 py-3">

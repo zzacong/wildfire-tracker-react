@@ -5,6 +5,7 @@ import type {
   LayerSpecification,
   SourceSpecification,
 } from "maplibre-gl";
+
 import type { HazardEvent } from "@/lib/hazard-event";
 
 export const HAZARD_EVENTS_SOURCE_ID = "hazard-events";

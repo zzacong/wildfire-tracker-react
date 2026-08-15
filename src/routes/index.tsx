@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+
 import { AppShell } from "@/components/shell/AppShell";
 import { hazardEventsHeaders, hazardEventsLoader } from "@/lib/hazard-events";
 import { parseHazardFiltersSearch, type HazardFiltersInput } from "@/lib/hazard-filters";
